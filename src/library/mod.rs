@@ -15,7 +15,7 @@ pub struct Library {
 }
 
 impl Library {
-    /// Creates new Library intance, vectors are initialized as empty.
+    /// Creates new Library instance, vectors are initialized as empty.
     pub fn new() -> Library {
         Library {
             did_resolvers: Vec::new(),
@@ -25,6 +25,8 @@ impl Library {
     }
 
     /// Gets document for given did name.
+    /// If multiple plugins are registered, first **successful** response
+    /// will be used. Request will fail if all plugins failed.
     ///
     /// # Arguments
     ///
@@ -77,6 +79,8 @@ impl Library {
     }
 
     /// Sets document for given did name.
+    /// If multiple plugins are registered, awaits completion of all actions.
+    /// First plugin, that fails lets this request fail.
     ///
     /// # Arguments
     ///

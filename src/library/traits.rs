@@ -31,7 +31,7 @@ pub trait Logger {
     /// # Arguments
     ///
     /// * `message` - message to log
-    /// * `level` - optional arguments for loggin level, levels may differ based on envoronment
+    /// * `level` - optional arguments for logging level, levels may differ based on environment
     fn log(&self, message: &str, level: Option<&str>);
 }
 
