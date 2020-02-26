@@ -1,0 +1,2 @@
+# ssi
+SSI core library
