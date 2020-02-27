@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use crate::library::traits::{ DidResolver };
+use crate::library::traits::{ DidResolver, VcResolver };
 use std::collections::HashMap;
 
 /// in-memory storage
@@ -60,5 +60,27 @@ impl DidResolver for RustStorageCache {
     /// * `value` - value to set
     async fn set_did_document(&mut self, did_id: &str, value: &str) -> Result<(), Box<dyn std::error::Error>> {
         self.set(did_id, value).await
+    }
+}
+
+#[async_trait]
+impl VcResolver for RustStorageCache {
+    /// Gets document for given vc.
+    ///
+    /// # Arguments
+    ///
+    /// * `vc_name` - vc_name to fetch
+    async fn get_vc_document(&self, vc_name: &str) -> Result<String, Box<dyn std::error::Error>> {
+        self.get(vc_name).await
+    }
+    
+    /// Sets document for given vc name.
+    ///
+    /// # Arguments
+    ///
+    /// * `vc_name` - vc_name to set value for
+    /// * `value` - value to set
+    async fn set_vc_document(&mut self, vc_name: &str, value: &str) -> Result<(), Box<dyn std::error::Error>> {
+        self.set(vc_name, value).await
     }
 }

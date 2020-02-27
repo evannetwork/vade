@@ -40,6 +40,22 @@ impl Library {
         }
     }
 
+    /// Gets document for given vc name.
+    /// If multiple plugins are registered, first **successful** response
+    /// will be used. Request will fail if all plugins failed.
+    ///
+    /// # Arguments
+    ///
+    /// * `vc_name` - vc_name to fetch
+    pub async fn get_vc_document(&self, vc_name: &str) -> Result<String, Box<dyn std::error::Error>> {
+        let futures = self.vc_resolvers.iter()
+            .map(|resolver| resolver.get_vc_document(vc_name));
+        match select_ok(futures).await {
+            Ok((r, _)) => Ok(r),
+            Err(_e) => Err(Box::new(SimpleError::new(format!("could not get vc document")))),
+        }
+    }
+
     /// Log given message. Logging will iterate through it and try to use every logger.
     ///
     /// # Arguments
@@ -74,7 +90,7 @@ impl Library {
     /// # Arguments
     /// 
     /// * `vc_resolver` - an instance of a `struct` that implements `VcResolver` trait
-    pub fn register_vc_resolve(&mut self, vc_resolver: Box<dyn VcResolver>) {
+    pub fn register_vc_resolver(&mut self, vc_resolver: Box<dyn VcResolver>) {
         self.vc_resolvers.push(vc_resolver);
     }
 
@@ -92,6 +108,23 @@ impl Library {
         match try_join_all(futures).await {
             Ok(_) => Ok(()),
             Err(_e) => Err(Box::new(SimpleError::new(format!("could not set did document")))),
+        }
+    }
+
+    /// Sets document for given vc name.
+    /// If multiple plugins are registered, awaits completion of all actions.
+    /// First plugin, that fails lets this request fail.
+    ///
+    /// # Arguments
+    ///
+    /// * `vc_name` - vc_name to set value for
+    /// * `value` - value to set
+    pub async fn set_vc_document(&mut self, vc_name: &str, value: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let futures = self.vc_resolvers.iter_mut()
+            .map(|resolver| resolver.set_vc_document(vc_name, value));
+        match try_join_all(futures).await {
+            Ok(_) => Ok(()),
+            Err(_e) => Err(Box::new(SimpleError::new(format!("could not set vc document")))),
         }
     }
 }

@@ -38,5 +38,18 @@ pub trait Logger {
 /// Implementing struct supports fetching vc documents by their id.
 #[async_trait]
 pub trait VcResolver {
-    async fn get_vc_document(&self, message: &str) -> Result<String, Box<dyn std::error::Error>>;
+    /// Gets document for given vc name.
+    ///
+    /// # Arguments
+    ///
+    /// * `vc_name` - vc_name to fetch
+    async fn get_vc_document(&self, vd_id: &str) -> Result<String, Box<dyn std::error::Error>>;
+
+    /// Sets document for given vc name.
+    ///
+    /// # Arguments
+    ///
+    /// * `vc_name` - vc_name to set value for
+    /// * `value` - value to set
+    async fn set_vc_document(&mut self, key: &str, value: &str) -> Result<(), Box<dyn std::error::Error>>;
 }
