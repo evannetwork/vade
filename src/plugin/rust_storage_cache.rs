@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use crate::library::traits::{ DidResolver, VcResolver };
+use simple_error::SimpleError;
 use std::collections::HashMap;
 
 /// in-memory storage
@@ -43,6 +44,28 @@ impl RustStorageCache {
 
 #[async_trait]
 impl DidResolver for RustStorageCache {
+    /// Checks given DID document.
+    /// A DID document is considered as valid if returning ().
+    /// Resolver may throw to indicate
+    /// - that it is not responsible for this DID
+    /// - that it considers this DID as invalid
+    /// 
+    /// Currently the test `did_name` `"test"` is accepted as valid.
+    ///
+    /// # Arguments
+    ///
+    /// * `did_name` - did_name to check document for
+    /// * `value` - value to check
+    async fn check_did(&self, did_name: &str, _value: &str) -> Result<(), Box<dyn std::error::Error>> {
+        if did_name == "test" {
+            println!("valid");
+            // accept empty did names (for test)
+            return Ok(());
+        }
+        println!("invalid");
+        Err(Box::new(SimpleError::new(format!("not responsible for this did"))))
+    }
+
     /// Gets document for given did name.
     ///
     /// # Arguments
@@ -65,6 +88,28 @@ impl DidResolver for RustStorageCache {
 
 #[async_trait]
 impl VcResolver for RustStorageCache {
+    /// Checks given Vc document.
+    /// A Vc document is considered as valid if returning ().
+    /// Resolver may throw to indicate
+    /// - that it is not responsible for this Vc
+    /// - that it considers this Vc as invalid
+    /// 
+    /// Currently the test `vc_id` `"test"` is accepted as valid.
+    ///
+    /// # Arguments
+    ///
+    /// * `vc_id` - vc_id to check document for
+    /// * `value` - value to check
+    async fn check_vc(&self, vc_id: &str, _value: &str) -> Result<(), Box<dyn std::error::Error>> {
+        if vc_id == "test" {
+            println!("valid");
+            // accept empty vc names (for test)
+            return Ok(());
+        }
+        println!("invalid");
+        Err(Box::new(SimpleError::new(format!("not responsible for this vc"))))
+    }
+
     /// Gets document for given vc.
     ///
     /// # Arguments

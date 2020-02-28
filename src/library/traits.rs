@@ -4,6 +4,18 @@ use std::any::Any;
 /// Implementing struct supports fetching did documents by their id.
 #[async_trait]
 pub trait DidResolver {
+    /// Checks given DID document.
+    /// A DID document is considered as valid if returning ().
+    /// Resolver may throw to indicate
+    /// - that it is not responsible for this DID
+    /// - that it considers this DID as invalid
+    ///
+    /// # Arguments
+    ///
+    /// * `did_name` - did_name to check document for
+    /// * `value` - value to check
+    pub async fn check_did(&self, did_name: &str, value: &str) -> Result<(), Box<dyn std::error::Error>>;
+
     /// Gets document for given did name.
     ///
     /// # Arguments
@@ -38,6 +50,18 @@ pub trait Logger {
 /// Implementing struct supports fetching vc documents by their id.
 #[async_trait]
 pub trait VcResolver {
+    /// Checks given VC document.
+    /// A VC document is considered as valid if returning ().
+    /// Resolver may throw to indicate
+    /// - that it is not responsible for this VC
+    /// - that it considers this VC as invalid
+    ///
+    /// # Arguments
+    ///
+    /// * `vc_id` - vc_id to check document for
+    /// * `value` - value to check
+    pub async fn check_vc(&self, vc_id: &str, value: &str) -> Result<(), Box<dyn std::error::Error>>;
+
     /// Gets document for given vc name.
     ///
     /// # Arguments
