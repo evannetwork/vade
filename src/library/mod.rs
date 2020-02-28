@@ -24,6 +24,44 @@ impl Library {
         }
     }
 
+    /// Checks given DID document against registered resolvers.
+    /// A DID document is considered as valid if at least one did resolver confirms its validity.
+    /// Resolvers may throw to indicate
+    /// - that they are not responsible for this DID
+    /// - that they consider this DID as invalid
+    ///
+    /// # Arguments
+    ///
+    /// * `did_name` - did_name to check document for
+    /// * `value` - value to check
+    pub async fn check_did(&mut self, did_name: &str, value: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let futures = self.did_resolvers.iter()
+            .map(|resolver| resolver.check_did(did_name, value));
+        match select_ok(futures).await {
+            Ok(_) => Ok(()),
+            Err(_e) => Err(Box::new(SimpleError::new(format!("did document not valid")))),
+        }
+    }
+
+    /// Checks given VC document against registered resolvers.
+    /// A VC document is considered as valid if at least one vc resolver confirms its validity.
+    /// Resolvers may throw to indicate
+    /// - that they are not responsible for this VC
+    /// - that they consider this VC as invalid
+    ///
+    /// # Arguments
+    ///
+    /// * `vc_id` - vc_id to check document for
+    /// * `value` - value to check
+    pub async fn check_vc(&mut self, vc_id: &str, value: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let futures = self.vc_resolvers.iter()
+            .map(|resolver| resolver.check_vc(vc_id, value));
+        match select_ok(futures).await {
+            Ok(_) => Ok(()),
+            Err(_e) => Err(Box::new(SimpleError::new(format!("vc document not valid")))),
+        }
+    }
+
     /// Gets document for given did name.
     /// If multiple plugins are registered, first **successful** response
     /// will be used. Request will fail if all plugins failed.
