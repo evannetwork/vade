@@ -58,7 +58,7 @@ impl Library {
             .map(|resolver| resolver.check_vc(vc_id, value));
         match select_ok(futures).await {
             Ok(_) => Ok(()),
-            Err(_e) => Err(Box::new(SimpleError::new(format!("vc document not valid")))),
+            Err(e) => Err(Box::new(SimpleError::new(format!("vc document not valid; {}", e)))),
         }
     }
 
