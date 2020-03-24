@@ -8,7 +8,8 @@ use traits::{ DidResolver, Logger, VcResolver };
 pub struct Library {
     /// Vector of supported DID resolvers.
     pub did_resolvers: Vec<Box<dyn DidResolver>>,
-    /// Vector of supported loggers. Logging will iterate through it and try to use every logger.
+    /// Vector of supported loggers. Logging will iterate through it and try to
+    /// use every logger.
     pub loggers: Vec<Box<dyn Logger>>,
     /// Vector of supported VC resolvers.
     pub vc_resolvers: Vec<Box<dyn VcResolver>>,
@@ -25,7 +26,8 @@ impl Library {
     }
 
     /// Checks given DID document against registered resolvers.
-    /// A DID document is considered as valid if at least one did resolver confirms its validity.
+    /// A DID document is considered as valid if at least one did resolver
+    /// confirms its validity.
     /// Resolvers may throw to indicate
     /// - that they are not responsible for this DID
     /// - that they consider this DID as invalid
@@ -44,7 +46,8 @@ impl Library {
     }
 
     /// Checks given VC document against registered resolvers.
-    /// A VC document is considered as valid if at least one vc resolver confirms its validity.
+    /// A VC document is considered as valid if at least one vc resolver
+    /// confirms its validity.
     /// Resolvers may throw to indicate
     /// - that they are not responsible for this VC
     /// - that they consider this VC as invalid
@@ -94,7 +97,13 @@ impl Library {
         }
     }
 
-    /// Log given message. Logging will iterate through it and try to use every logger.
+    /// Log given message. Logging will iterate through it and try to use
+    /// every logger.
+    ///
+    /// **Note**: This functionality is currently semi-obsoleted. It has been
+    /// used for testing purposes and it is currently unclear wheter it will
+    /// stay as it is or undergo further changes to allow to to fulfill its
+    /// original role.
     ///
     /// # Arguments
     ///
@@ -105,16 +114,19 @@ impl Library {
         }
     }
 
-    /// Registers new `DidResolver` instance. Note, that `did_resolver` is given as `Box` to support dynamic assignment.
+    /// Registers new `DidResolver` instance. Note, that `did_resolver` is given
+    /// as `Box` to support dynamic assignment.
     ///
     /// # Arguments
     /// 
-    /// * `did_resolver` - an instance of a `struct` that implements `DidResolver` trait
+    /// * `did_resolver` - an instance of a `struct` that implements
+    ///                    `DidResolver` trait
     pub fn register_did_resolver(&mut self, did_resolver: Box<dyn DidResolver>) {
         self.did_resolvers.push(did_resolver);
     }
 
-    /// Registers new `Logger` instance. Note, that `logger` is given as `Box` to support dynamic assignment.
+    /// Registers new `Logger` instance. Note, that `logger` is given as `Box`
+    /// to support dynamic assignment.
     ///
     /// # Arguments
     /// 
@@ -123,11 +135,13 @@ impl Library {
         self.loggers.push(logger);
     }
 
-    /// Registers new `VcdResolver` instance. Note, that `vc_resolver` is given as `Box` to support dynamic assignment.
+    /// Registers new `VcdResolver` instance. Note, that `vc_resolver` is given
+    /// as `Box` to support dynamic assignment.
     ///
     /// # Arguments
     /// 
-    /// * `vc_resolver` - an instance of a `struct` that implements `VcResolver` trait
+    /// * `vc_resolver` - an instance of a `struct` that implements `VcResolver`
+    ///                   trait
     pub fn register_vc_resolver(&mut self, vc_resolver: Box<dyn VcResolver>) {
         self.vc_resolvers.push(vc_resolver);
     }
