@@ -58,9 +58,19 @@ Keep in mind, that the `RustStorageCache` resolver can be considered a reference
 
 ## Plugins
 
-### Basic Behavior
+Plugins are the modules, that perform the actual work in the `Library` module. This project already has one plugin included `RustStorageCache`, which can be used as a refrence for creating own plugins.
 
-Plugins are the modules, that perform the actual work in the `Library` module. This project already has one plugin included - `RustStorageCache`.
+### Create new Plugins
+
+Developing plugins for `ssi` is can be done by implementing one or more traits from `use ssi::library::traits::*`, e.g.
+
+- `DidResolver`
+- `VcResolver`
+- `Logger` (currently unclear if this plugin will be continued, but can be used for implementation tests)
+
+An example for a simple plugin can is the provided `RustStorageCache`. This implements `DidResolver` as well as `VcResolver` functionalities. For your implementation you can of course decide to implement only a single trait in a plugin.
+
+### Basic Behavior
 
 This plugin implements the following traits:
 
