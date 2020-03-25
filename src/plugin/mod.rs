@@ -14,4 +14,8 @@
   limitations under the License.
 */
 
+//! Plugins provided by the `vade` library. Currently includes the [`RustStorageCache`] plugin.
+//! 
+//! [`RustStorageCache`]: rust_storage_cache/struct.RustStorageCache.html
+
 pub mod rust_storage_cache;
