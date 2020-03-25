@@ -1,12 +1,12 @@
 [package]
-name = "ssi"
+name = "vade"
 version = "0.0.1"
 authors = ["evan GmbH"]
 edition = "2018"
 license = "Apache-2.0"
 description = "Self Sovereign Identity Library"
-homepage = "https://github.com/evannetwork/ssi"
-repository = "https://github.com/evannetwork/ssi"
+homepage = "https://github.com/evannetwork/vade"
+repository = "https://github.com/evannetwork/vade"
 readme = "README.md"
 keywords = ["did", "ssi", "vc"]
 

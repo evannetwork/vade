@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use crate::library::traits::{ DidResolver, VcResolver };
+use crate::traits::{ DidResolver, VcResolver };
 use simple_error::SimpleError;
 use std::collections::HashMap;
 

@@ -1,13 +1,13 @@
-# Self Sovereign Identity Library
+# Vade
 
 ## About
 
-This library is intended to be used as a core library for developing own self sovereign identity (SSI) applications.
+This library is intended to be used as a core library for developing own self sovereign identity based applications.
 
-It focuses on working with VCs and DIDs but does not hold much logic concerning their structure. Confused? Guessed as much, so what does does this library actually does is:
+So why the name? "Vade" is an acronym for "VC and DID engine". It focuses on working with VCs and DIDs but does not hold much logic concerning their structure. Confused? Guessed as much, so what does does this library actually does is:
 
 - offering traits that define how actual implementations (aka "plugins") for working with VCs and DIDs should behave
-- storing those plugins in a `Library` instance
+- storing those plugins in a `Vade` instance
 - querying against all registered plugins for certain actions (e.g. for getting VCs/DIDs)
 
 It has been designed with the idea of offering a consistent interface to work with while supporting to move the actual work into plugins, which also helps to reduce the dependencies.
@@ -16,32 +16,32 @@ This library is currently under development and behavior as well as provided tra
 
 ## Usage
 
-First add `ssi` as a dependency to your `Cargo.toml`. Then you can create new instances in your code (taken from our tests):
+First add `vade` as a dependency to your `Cargo.toml`. Then you can create new instances in your code (taken from our tests):
 
 ```rust
-extern crate ssi;
+extern crate vade;
 
-use ssi::library::Library;
+use vade::Vade;
 
 #[test]
 fn library_can_be_created() {
-    let _library = Library::new();
+    let _vade = Vade::new();
 }
 ```
 
 Okay, that did not do much yet. The core library also offers a simple in-memory cache, called `RustStorageCache`, which can be used when working with VC and DID documents, that are available offline and should just be stored and/or retrieved locally. So to use `RustStorageCache` as a `VcResolver`, we just need to add it as a `VcResolver` plugin:
 
 ```rust
-extern crate ssi;
+extern crate vade;
 
-use ssi::library::Library;
-use ssi::library::traits::VcResolver;
-use ssi::plugin::rust_storage_cache::RustStorageCache;
+use vade::Vade;
+use vade::traits::VcResolver;
+use vade::plugin::rust_storage_cache::RustStorageCache;
 
 
 #[tokio::test]
 async fn library_vc_can_set_vcs_with_two_resolvers_via_library_set() {
-    let mut library = Library::new();
+    let mut vade = Vade::new();
     let storage = RustStorageCache::new();
     library.register_vc_resolver(Box::from(storage));
 
@@ -58,11 +58,11 @@ Keep in mind, that the `RustStorageCache` resolver can be considered a reference
 
 ## Plugins
 
-Plugins are the modules, that perform the actual work in the `Library` module. This project already has one plugin included `RustStorageCache`, which can be used as a refrence for creating own plugins.
+Plugins are the modules, that perform the actual work in the `Vade` module. This project already has one plugin included `RustStorageCache`, which can be used as a refrence for creating own plugins.
 
 ### Create new Plugins
 
-Developing plugins for `ssi` is can be done by implementing one or more traits from `use ssi::library::traits::*`, e.g.
+Developing plugins for `vade` is can be done by implementing one or more traits from `use vade::library::traits::*`, e.g.
 
 - `DidResolver`
 - `VcResolver`
@@ -84,11 +84,11 @@ This allows us to register it as these resolvers with
 
 respectively.
 
-As soon as they are registered as a plugin for a certain type of operation, they are called for related operations (e.g. `get_vc_document`) by the `Library` instance they are registered in.
+As soon as they are registered as a plugin for a certain type of operation, they are called for related operations (e.g. `get_vc_document`) by the `Vade` instance they are registered in.
 
 ### Library Functions, that utilize Plugins
 
-This sections shows a short overview over the plugin related functions. For more details, have a look at the `Library` documentation.
+This sections shows a short overview over the plugin related functions. For more details, have a look at the `Vade` documentation.
 
 #### Plugin registration
 
@@ -131,6 +131,6 @@ The current validation flow offers only a limited way of feedback for invalidity
 
 ### More Plugins
 
-A plugin working with VCs and DIDs on [evan.network](https://evan.network/) called `ssi-evan` has been implemented. Its usage is equivalent to the description above, more details can be found on its project page.
+A plugin working with VCs and DIDs on [evan.network](https://evan.network/) called `vade-evan` has been implemented. Its usage is equivalent to the description above, more details can be found on its project page.
 
 You can also start writing your own plugin, by following the behavior outlined with the traits in this library.

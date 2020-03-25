@@ -1,6 +1,6 @@
-extern crate ssi;
+extern crate vade;
 
-use ssi::plugin::rust_storage_cache::RustStorageCache;
+use vade::plugin::rust_storage_cache::RustStorageCache;
 
 #[tokio::test]
 async fn storage_can_store_data() {
@@ -15,7 +15,7 @@ async fn storage_can_store_data() {
 }
 
 #[tokio::test]
-async fn get_an_error_when_trying_to_access_missing_keys() {
+async fn get_an_error_when_trying_to_access_mivadeng_keys() {
     let mut storage = RustStorageCache::new();
     match storage.set("example_key", "example_value").await {
         Ok(()) => {

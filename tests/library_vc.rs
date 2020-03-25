@@ -1,13 +1,13 @@
-extern crate ssi;
+extern crate vade;
 
-use ssi::library::Library;
-use ssi::library::traits::VcResolver;
-use ssi::plugin::rust_storage_cache::RustStorageCache;
+use vade::Vade;
+use vade::traits::VcResolver;
+use vade::plugin::rust_storage_cache::RustStorageCache;
 
 
 #[tokio::test]
 async fn library_vc_can_set_vcs_with_two_resolvers_via_library_set() {
-    let mut library = Library::new();
+    let mut vade = Vade::new();
     let storage1 = RustStorageCache::new();
     library.register_vc_resolver(Box::from(storage1));
     let storage2 = RustStorageCache::new();
@@ -23,7 +23,7 @@ async fn library_vc_can_set_vcs_with_two_resolvers_via_library_set() {
 
 #[tokio::test]
 async fn library_vc_can_set_vcs_with_two_resolvers_via_storage_set() {
-    let mut library = Library::new();
+    let mut vade = Vade::new();
     
     let mut storage1 = RustStorageCache::new();
     match storage1.set_vc_document("example_key1", "example_value1").await {
@@ -47,7 +47,7 @@ async fn library_vc_can_set_vcs_with_two_resolvers_via_storage_set() {
 
 #[tokio::test]
 async fn library_vc_can_check_vcs() {
-    let mut library = Library::new();
+    let mut vade = Vade::new();
     let storage = RustStorageCache::new();
     library.register_vc_resolver(Box::from(storage));
 

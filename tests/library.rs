@@ -1,8 +1,8 @@
-extern crate ssi;
+extern crate vade;
 
-use ssi::library::Library;
+use vade::Vade;
 
 #[test]
 fn library_can_be_created() {
-    let _library = Library::new();
+    let _vade = Vade::new();
 }
