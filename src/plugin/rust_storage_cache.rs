@@ -14,6 +14,10 @@
   limitations under the License.
 */
 
+//! Module for the [`RustStorageCache`] plugin.
+//! 
+//! [`RustStorageCache`]: struct.RustStorageCache.html
+
 use async_trait::async_trait;
 use crate::traits::{ DidResolver, VcResolver };
 use simple_error::SimpleError;

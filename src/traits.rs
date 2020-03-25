@@ -14,6 +14,9 @@
   limitations under the License.
 */
 
+//! Traits for interoperability with [`Vade`] instances.
+//! 
+//! [`Vade`]: ../struct.Vade.html
 use async_trait::async_trait;
 use std::any::Any;
 
