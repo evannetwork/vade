@@ -1,5 +1,9 @@
 # Vade
 
+[![crates.io](https://img.shields.io/crates/v/vade.svg)](https://crates.io/crates/vade)
+[![Documentation](https://docs.rs/vade/badge.svg)](https://docs.rs/vade)
+[![Apache-2 licensed](https://img.shields.io/crates/l/vade.svg)](./LICENSE.txt)
+
 ## About
 
 This library is intended to be used as a core library for developing own self sovereign identity based applications.
