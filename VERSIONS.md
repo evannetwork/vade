@@ -8,6 +8,12 @@
 
 ### Deprecations
 
+## Version 0.0.3
+
+### Fixes
+
+- fix links in `Readme.md`
+
 ## Version 0.0.2
 
 ### Fixes
