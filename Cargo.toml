@@ -1,11 +1,12 @@
 [package]
 name = "vade"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["evan GmbH"]
 edition = "2018"
 license = "Apache-2.0"
 description = "VC and DID engine"
 homepage = "https://github.com/evannetwork/vade"
+documentation = "https://docs.rs/crate/vade"
 repository = "https://github.com/evannetwork/vade"
 readme = "README.md"
 keywords = ["did", "ssi", "vc"]

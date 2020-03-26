@@ -33,7 +33,7 @@ pub trait DidResolver: Send + Sync {
     ///
     /// * `did_name` - did_name to check document for
     /// * `value` - value to check
-    pub async fn check_did(&self, did_name: &str, value: &str) -> Result<(), Box<dyn std::error::Error>>;
+    async fn check_did(&self, did_name: &str, value: &str) -> Result<(), Box<dyn std::error::Error>>;
 
     /// Gets document for given did name.
     ///
@@ -79,7 +79,7 @@ pub trait VcResolver: Send + Sync {
     ///
     /// * `vc_id` - vc_id to check document for
     /// * `value` - value to check
-    pub async fn check_vc(&self, vc_id: &str, value: &str) -> Result<(), Box<dyn std::error::Error>>;
+    async fn check_vc(&self, vc_id: &str, value: &str) -> Result<(), Box<dyn std::error::Error>>;
 
     /// Gets document for given vc name.
     ///
