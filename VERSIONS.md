@@ -12,8 +12,9 @@
 
 ### Fixes
 
-- fix links in `Readme.md`
-- fix links src files
+- update links in `Readme.md` and src files
+- add license file
+- add badges
 
 ## Version 0.0.3
 
