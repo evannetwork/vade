@@ -1,0 +1,26 @@
+[package]
+name = "vade"
+version = "0.0.1"
+authors = ["evan GmbH"]
+edition = "2018"
+license = "Apache-2.0"
+description = "VC and DID engine"
+homepage = "https://github.com/evannetwork/vade"
+repository = "https://github.com/evannetwork/vade"
+readme = "README.md"
+keywords = ["did", "ssi", "vc"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+async-trait = "0.1.24"
+futures = "0.3.4"
+simple-error = "0.2.1"
+
+[dev-dependencies]
+tokio = { version = "0.2.11", features = ["macros", "rt-threaded"] }
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"
