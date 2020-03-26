@@ -135,18 +135,18 @@ A plugin working with VCs and DIDs on [evan.network](https://evan.network/) call
 
 You can also start writing your own plugin, by following the behavior outlined with the traits in this library.
 
-[`check_did_document`]: https://docs.rs/vade/latest/traits/trait.DidResolver.html#tymethod.check_did_document
-[`check_vc_document`]: https://docs.rs/vade/latest/traits/trait.VcResolver.html#tymethod.check_vc_document
-[`DidResolver`]: https://docs.rs/vade/latest/traits/trait.DidResolver.html
-[`get_did_document`]: https://docs.rs/vade/latest/traits/trait.DidResolver.html#tymethod.get_did_document
-[`get_vc_document`]: https://docs.rs/vade/latest/traits/trait.VcResolver.html#tymethod.get_vc_document
-[`Logger`]: https://docs.rs/vade/latest/traits/trait.Logger.html
-[`register_did_resolver`]: https://docs.rs/vade/latest/struct.Vade.html#method.register_did_resolver
-[`register_vc_resolver`]: https://docs.rs/vade/latest/struct.Vade.html#method.register_did_resolver
-[`RustStorageCache`]: https://docs.rs/vade/latest/plugin/rust_storage_cache/struct.RustStorageCache.html
-[`set_did_document`]: https://docs.rs/vade/latest/traits/trait.DidResolver.html#tymethod.set_did_document
-[`set_vc_document`]: https://docs.rs/vade/latest/traits/trait.VcResolver.html#tymethod.set_vc_document
-[`vade-evan`]: https://docs.rs/vade/latest/https://docs.rs/vade_evan
-[`vade::library::traits`]: https://docs.rs/vade/latest/traits/index.html
-[`Vade`]: https://docs.rs/vade/latest/struct.Vade.html
-[`VcResolver`]: https://docs.rs/vade/latest/traits/trait.VcResolver.html
+[`check_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.check_did_document
+[`check_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.check_vc_document
+[`DidResolver`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html
+[`get_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.get_did_document
+[`get_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.get_vc_document
+[`Logger`]: https://docs.rs/vade/*/vade/traits/trait.Logger.html
+[`register_did_resolver`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_did_resolver
+[`register_vc_resolver`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_did_resolver
+[`RustStorageCache`]: https://docs.rs/vade/*/vade/plugin/rust_storage_cache/struct.RustStorageCache.html
+[`set_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.set_did_document
+[`set_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.set_vc_document
+[`vade-evan`]: https://docs.rs/vade_evan
+[`vade::library::traits`]: https://docs.rs/vade/*/vade/traits/index.html
+[`Vade`]: https://docs.rs/vade/*/vade/struct.Vade.html
+[`VcResolver`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html
