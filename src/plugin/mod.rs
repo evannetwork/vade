@@ -16,6 +16,6 @@
 
 //! Plugins provided by the `vade` library. Currently includes the [`RustStorageCache`] plugin.
 //! 
-//! [`RustStorageCache`]: rust_storage_cache/struct.RustStorageCache.html
+//! [`RustStorageCache`]: crate::plugin::rust_storage_cache::RustStorageCache
 
 pub mod rust_storage_cache;
