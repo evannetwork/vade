@@ -16,7 +16,8 @@
 
 //! Traits for interoperability with [`Vade`] instances.
 //! 
-//! [`Vade`]: ../struct.Vade.html
+//! [`Vade`]: crate::Vade
+
 use async_trait::async_trait;
 use std::any::Any;
 

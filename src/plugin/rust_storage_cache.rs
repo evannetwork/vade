@@ -16,7 +16,7 @@
 
 //! Module for the [`RustStorageCache`] plugin.
 //! 
-//! [`RustStorageCache`]: struct.RustStorageCache.html
+//! [`RustStorageCache`]: crate::plugin::rust_storage_cache::RustStorageCache
 
 use async_trait::async_trait;
 use crate::traits::{ DidResolver, VcResolver };
