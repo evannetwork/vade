@@ -135,10 +135,11 @@ The current validation flow offers only a limited way of feedback for invalidity
 
 ### More Plugins
 
-A plugin working with VCs and DIDs on [evan.network](https://evan.network/) called [`vade-evan`] has been implemented. Its usage is equivalent to the description above, more details can be found on its project page.
+A plugin working with VCs and DIDs on [evan.network] called [`vade-evan`] has been implemented. Its usage is equivalent to the description above, more details can be found on its project page.
 
 You can also start writing your own plugin, by following the behavior outlined with the traits in this library.
 
+[evan.network]: https://evan.network
 [`check_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.check_did_document
 [`check_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.check_vc_document
 [`DidResolver`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html
@@ -150,7 +151,7 @@ You can also start writing your own plugin, by following the behavior outlined w
 [`RustStorageCache`]: https://docs.rs/vade/*/vade/plugin/rust_storage_cache/struct.RustStorageCache.html
 [`set_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.set_did_document
 [`set_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.set_vc_document
-[`vade-evan`]: https://docs.rs/vade_evan
+[`vade-evan`]: https://docs.rs/vade-evan
 [`vade::library::traits`]: https://docs.rs/vade/*/vade/traits/index.html
 [`Vade`]: https://docs.rs/vade/*/vade/struct.Vade.html
 [`VcResolver`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html
