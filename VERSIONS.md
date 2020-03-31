@@ -7,6 +7,7 @@
 ### Fixes
 
 - update documentation (grammar, wording)
+- update links in docu
 
 ### Deprecations
 
