@@ -14,9 +14,9 @@
   limitations under the License.
 */
 
-//! This library is intended to be used as a core library for developing own self sovereign identity based applications.
+//! This library is intended to be used as a core library for developing own self-sovereign identity based applications.
 //!
-//! So why the name? "Vade" is an acronym for "VC and DID engine". It focuses on working with VCs and DIDs but does not hold much logic concerning their structure. Confused? Guessed as much, so what does does this library actually does is:
+//! So why the name? "Vade" is an acronym for "VC and DID engine". It focuses on working with VCs and DIDs but does not hold much logic concerning their structure. Confused? Guessed as much, so what this library actually does is:
 //!
 //! - offering traits that define how actual implementations (aka "plugins") for working with VCs and DIDs should behave
 //! - storing those plugins in a [`Vade`] instance
@@ -24,7 +24,7 @@
 //!
 //! It has been designed with the idea of offering a consistent interface to work with while supporting to move the actual work into plugins, which also helps to reduce the dependencies.
 //!
-//! This library is currently under development and behavior as well as provided traits will most probably change over time.
+//! This library is currently under development. Behavior, as well as provided traits, will most probably change over time.
 //!
 //! ## Usage
 //!
@@ -70,24 +70,24 @@
 //!
 //! ## Plugins
 //!
-//! Plugins are the modules, that perform the actual work in the [`Vade`] module. This project already has one plugin included [`RustStorageCache`], which can be used as a refrence for creating own plugins.
+//! Plugins are the modules that perform the actual work in the [`Vade`] module. This project already has one plugin included,  [`RustStorageCache`], which can be used as a refrence for creating own plugins.
 //!
 //! ### Create new Plugins
 //!
-//! Developing plugins for `vade` is can be done by implementing one or more traits from [`vade::library::traits`], e.g.
+//! Developing plugins for `vade` can be done by implementing one or more traits from [`vade::library::traits`], e.g.
 //!
 //! - [`DidResolver`]
 //! - [`VcResolver`]
 //! - [`Logger`] (currently unclear if this plugin will be continued, but can be used for implementation tests)
 //!
-//! An example for a simple plugin can is the provided [`RustStorageCache`]. This implements [`DidResolver`] as well as [`VcResolver`] functionalities. For your implementation you can of course decide to implement only a single trait in a plugin.
+//! An example for a simple plugin is the provided [`RustStorageCache`]. It implements [`DidResolver`] as well as [`VcResolver`] functionalities. For your implementation you can, of course, decide to implement only a single trait in a plugin.
 //!
 //! ### Basic Behavior
 //!
 //! This plugin implements the following traits:
 //!
-//! - [`VcResolver`] - therefore it can handle VC documents
-//! - [`DidResolver`] - therefore it can handle DID documents
+//! - [`VcResolver`] - therefore, it can handle VC documents
+//! - [`DidResolver`] - therefore, it can handle DID documents
 //!
 //! This allows us to register it as these resolvers with
 //!
@@ -98,9 +98,9 @@
 //!
 //! As soon as they are registered as a plugin for a certain type of operation, they are called for related operations (e.g. [`get_vc_document`]) by the [`Vade`] instance they are registered in.
 //!
-//! ### Library Functions, that utilize Plugins
+//! ### Library Functions that utilize Plugins
 //!
-//! This sections shows a short overview over the plugin related functions. For more details, have a look at the [`Vade`] documentation.
+//! This section shows a short overview over the plugin related functions. For more details, have a look at the [`Vade`] documentation.
 //!
 //! #### Plugin registration
 //!
@@ -116,7 +116,7 @@
 //! - [`set_did_document`]
 //! - [`set_vc_document`]
 //!
-//! If multiple plugins are registered, awaits completion of all actions. First plugin, that fails lets this request fail.
+//! If multiple plugins are registered, awaits completion of all actions. First plugin that fails lets this request fail.
 //!
 //! #### Getters
 //!
@@ -134,10 +134,10 @@
 //! - [`check_did_document`]
 //! - [`check_vc_document`]
 //!
-//! A document is considered as valid if at least one resolver confirms its validity. Resolvers may throw to indicate:
+//! A document is considered valid if at least one resolver confirms its validity. Resolvers may throw to indicate:
 //!
 //! - that they are not responsible for this document
-//! - that they consider this document as invalid
+//! - that they consider this document invalid
 //!
 //! The current validation flow offers only a limited way of feedback for invalidity and may undergo further changes in future.
 //!
