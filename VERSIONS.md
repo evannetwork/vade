@@ -6,6 +6,8 @@
 
 ### Fixes
 
+- update documentation (grammar, wording)
+
 ### Deprecations
 
 ## Version 0.0.4
