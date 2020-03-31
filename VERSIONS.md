@@ -8,6 +8,13 @@
 
 ### Deprecations
 
+## Version 0.0.5
+
+### Fixes
+
+- update documentation (grammar, wording)
+- update links in docu
+
 ## Version 0.0.4
 
 ### Fixes
