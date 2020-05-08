@@ -8,6 +8,13 @@
 
 ### Deprecations
 
+## Version 0.0.6
+
+### Features
+
+- add support for wasm compilation
+- update documentation
+
 ## Version 0.0.5
 
 ### Fixes
