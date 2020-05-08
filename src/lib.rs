@@ -335,7 +335,14 @@
 //!
 //! You can also start writing your own plugin, by following the behavior outlined with the traits in this library.
 //!
+//! ## Wasm Support
+//!
+//! Vade supports Wasm! ^^
+//! 
+//! For an example how to use [`Vade`] in Wasm and a how to guide, have a look at our [vade-wasm-example] project.
+//!
 //! [evan.network]: https://evan.network
+//! [vade-wasm-example]: https://github.com/evannetwork/vade-wasm-example
 //! [`check_did_document`]: traits/trait.DidResolver.html#tymethod.check_did_document
 //! [`check_vc_document`]: traits/trait.VcResolver.html#tymethod.check_vc_document
 //! [`DidResolver`]: traits/trait.DidResolver.html
