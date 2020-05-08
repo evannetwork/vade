@@ -62,7 +62,7 @@ impl RustStorageCache {
     }
 }
 
-#[async_trait]
+#[async_trait(?Send)]
 impl DidResolver for RustStorageCache {
     /// Checks given DID document.
     /// A DID document is considered as valid if returning ().
@@ -106,7 +106,7 @@ impl DidResolver for RustStorageCache {
     }
 }
 
-#[async_trait]
+#[async_trait(?Send)]
 impl VcResolver for RustStorageCache {
     /// Checks given Vc document.
     /// A Vc document is considered as valid if returning ().
