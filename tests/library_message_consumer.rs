@@ -47,7 +47,7 @@ async fn library_message_consumer_can_be_registered() {
     let mut vade = Vade::new();
     let tmc = TestMessageConsumer::new();
     vade.register_message_consumer(
-        &vec![String::from("message1"), String::from("message2")],
+        &vec!["message1", "message2"].iter().map(|&x| String::from(x)).collect(),
         Box::from(tmc),
     );
 }
@@ -57,7 +57,7 @@ async fn library_message_consumer_can_receive_messages() {
     let mut vade = Vade::new();
     let tmc = TestMessageConsumer::new();
     vade.register_message_consumer(
-        &vec![String::from("message1"), String::from("message2")],
+        &vec!["message1", "message2"].iter().map(|&x| String::from(x)).collect(),
         Box::from(tmc),
     );
 
@@ -82,7 +82,7 @@ async fn library_message_consumer_can_ignore_messages() {
     let mut vade = Vade::new();
     let tmc = TestMessageConsumer::new();
     vade.register_message_consumer(
-        &vec![String::from("message1"), String::from("message2")],
+        &vec!["message1", "message2"].iter().map(|&x| String::from(x)).collect(),
         Box::from(tmc),
     );
 
