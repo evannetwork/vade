@@ -38,7 +38,7 @@ impl TestMessageConsumer {
 impl MessageConsumer for TestMessageConsumer {
     async fn handle_message(&mut self, message_data: &str) -> Result<Option<String>, Box<dyn std::error::Error>> {
         self.message_count = self.message_count + 1;
-        Ok(Option::from(format!(r###"{{ "messageType": "response", "data": {{ "count": {}, "lastMessage": {} }} }}"###, self.message_count, &message_data).to_string()))
+        Ok(Option::from(format!(r###"{{ "type": "response", "data": {{ "count": {}, "lastMessage": {} }} }}"###, self.message_count, &message_data).to_string()))
     }
 }
 
@@ -62,17 +62,17 @@ async fn library_message_consumer_can_receive_messages() {
     );
 
     // regular increase
-    let responses = vade.send_message(r###"{ "messageType": "message1", "data": {} }"###).await.unwrap();
+    let responses = vade.send_message(r###"{ "type": "message1", "data": {} }"###).await.unwrap();
     let parsed: Value = serde_json::from_str(responses[0].as_ref().unwrap()).unwrap();
     assert_eq!(parsed["data"]["count"].as_u64().unwrap(), 1);
 
     // regular increase
-    let responses = vade.send_message(r###"{ "messageType": "message1", "data": {} }"###).await.unwrap();
+    let responses = vade.send_message(r###"{ "type": "message1", "data": {} }"###).await.unwrap();
     let parsed: Value = serde_json::from_str(responses[0].as_ref().unwrap()).unwrap();
     assert_eq!(parsed["data"]["count"].as_u64().unwrap(), 2);
 
     // regular increase
-    let responses = vade.send_message(r###"{ "messageType": "message1", "data": {} }"###).await.unwrap();
+    let responses = vade.send_message(r###"{ "type": "message1", "data": {} }"###).await.unwrap();
     let parsed: Value = serde_json::from_str(responses[0].as_ref().unwrap()).unwrap();
     assert_eq!(parsed["data"]["count"].as_u64().unwrap(), 3);
 }
@@ -87,21 +87,21 @@ async fn library_message_consumer_can_ignore_messages() {
     );
 
     // regular increase
-    let responses = vade.send_message(r###"{ "messageType": "message1", "data": {} }"###).await.unwrap();
+    let responses = vade.send_message(r###"{ "type": "message1", "data": {} }"###).await.unwrap();
     let parsed: Value = serde_json::from_str(responses[0].as_ref().unwrap()).unwrap();
     assert_eq!(parsed["data"]["count"].as_u64().unwrap(), 1);
 
     // regular increase
-    let responses = vade.send_message(r###"{ "messageType": "message2", "data": {} }"###).await.unwrap();
+    let responses = vade.send_message(r###"{ "type": "message2", "data": {} }"###).await.unwrap();
     let parsed: Value = serde_json::from_str(responses[0].as_ref().unwrap()).unwrap();
     assert_eq!(parsed["data"]["count"].as_u64().unwrap(), 2);
 
     // no response as type does not match
-    let responses = vade.send_message(r###"{ "messageType": "message3", "data": {} }"###).await.unwrap();
+    let responses = vade.send_message(r###"{ "type": "message3", "data": {} }"###).await.unwrap();
     assert_eq!(responses.len(), 0);
 
     // counting resumes from last accepted message
-    let responses = vade.send_message(r###"{ "messageType": "message2", "data": {} }"###).await.unwrap();
+    let responses = vade.send_message(r###"{ "type": "message2", "data": {} }"###).await.unwrap();
     let parsed: Value = serde_json::from_str(responses[0].as_ref().unwrap()).unwrap();
     assert_eq!(parsed["data"]["count"].as_u64().unwrap(), 3);
 }

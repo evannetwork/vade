@@ -377,9 +377,8 @@ use simple_error::SimpleError;
 use traits::{ DidResolver, Logger, MessageConsumer, VcResolver };
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct VadeMessage<'a> {
-    message_type: String,
+    r#type: String,
     #[serde(borrow)]
     data: &'a RawValue,
 }
@@ -565,7 +564,7 @@ impl Vade {
         let mut futures = Vec::new();
         for (i, consumer) in self.message_consumers.iter_mut().enumerate() {
             let subscriptions = &self.message_subscriptions[i];
-            if subscriptions.iter().any(|i| i == &parsed.message_type) {
+            if subscriptions.iter().any(|i| i == &parsed.r#type) {
                 futures.push(consumer.handle_message(parsed.data.get()))
             }
         }
