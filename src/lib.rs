@@ -376,11 +376,6 @@ use serde_json::value::RawValue;
 use simple_error::SimpleError;
 use traits::{ DidResolver, Logger, MessageConsumer, VcResolver };
 
-pub struct VadeResponse {
-    pub message_type: String,
-    pub data: Vec<Option<String>>,
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct VadeMessage<'a> {
@@ -564,7 +559,7 @@ impl Vade {
     pub async fn send_message<'a>(
         &mut self,
         message: &str,
-    ) -> Result<VadeResponse, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         debug!("got message: {:?}", message);
         let parsed: VadeMessage = serde_json::from_str(message).unwrap();
         let mut futures = Vec::new();
@@ -574,16 +569,10 @@ impl Vade {
                 futures.push(consumer.handle_message(parsed.data.get()))
             }
         }
-        let plugin_responses = match try_join_all(futures).await {
-            Ok(response) => response,
+        match try_join_all(futures).await {
+            Ok(responses) => Ok(responses),
             Err(_e) => return Err(Box::new(SimpleError::new(format!("could not set did document")))),
-        };
-
-        let result = VadeResponse {
-            message_type: parsed.message_type.to_string(),
-            data: plugin_responses,
-        };
-        Ok(result)
+        }
     }
 
     /// Sets document for given did name.
