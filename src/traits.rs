@@ -67,6 +67,21 @@ pub trait Logger {
     fn log(&self, message: &str, level: Option<&str>);
 }
 
+#[async_trait(?Send)]
+/// Implementing sruct support generic message handling, has to be registered with
+/// Vade::register_message_consumer and subscribed to specific message types.
+pub trait MessageConsumer {
+    /// Reacts to a given message and optionally returns a reply.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `message_data` - arbitrary data for plugin, e.g. a JSON
+    async fn handle_message(
+        &mut self,
+        message_data: &str,
+    ) -> Result<Option<String>, Box<dyn std::error::Error>>;
+}
+
 /// Implementing struct supports fetching vc documents by their id.
 #[async_trait(?Send)]
 pub trait VcResolver {

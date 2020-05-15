@@ -361,15 +361,33 @@
 //! [`Vade`]: struct.Vade.html
 //! [`VcResolver`]: traits/trait.VcResolver.html
 
-pub mod plugin;
-pub mod traits;
-
+extern crate env_logger;
+#[macro_use]
+extern crate log;
 #[macro_use]
 extern crate simple_error;
 
+pub mod plugin;
+pub mod traits;
+
 use futures::future::{ select_ok, try_join_all };
+use serde::{Serialize, Deserialize};
+use serde_json::value::RawValue;
 use simple_error::SimpleError;
-use traits::{ DidResolver, Logger, VcResolver };
+use traits::{ DidResolver, Logger, MessageConsumer, VcResolver };
+
+pub struct VadeResponse {
+    pub message_type: String,
+    pub data: Vec<Option<String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct VadeMessage<'a> {
+    message_type: String,
+    #[serde(borrow)]
+    data: &'a RawValue,
+}
 
 /// Vade library, that holds plugins and delegates calls to them.
 pub struct Vade {
@@ -380,15 +398,24 @@ pub struct Vade {
     pub loggers: Vec<Box<dyn Logger>>,
     /// Vector of supported VC resolvers.
     pub vc_resolvers: Vec<Box<dyn VcResolver>>,
+    /// plugins, that subscribed for generic messages
+    pub message_consumers: Vec<Box<dyn MessageConsumer>>,
+    /// subscribed message types for each consumer
+    pub message_subscriptions: Vec<Vec<String>>,
 }
 
 impl Vade {
     /// Creates new Vade instance, vectors are initialized as empty.
     pub fn new() -> Vade {
+        match env_logger::try_init() {
+            Ok(_) | Err(_) => (),
+        };
         Vade {
             did_resolvers: Vec::new(),
             loggers: Vec::new(),
             vc_resolvers: Vec::new(),
+            message_consumers: Vec::new(),
+            message_subscriptions: Vec::new(),
         }
     }
 
@@ -511,6 +538,52 @@ impl Vade {
     ///                   trait
     pub fn register_vc_resolver(&mut self, vc_resolver: Box<dyn VcResolver>) {
         self.vc_resolvers.push(vc_resolver);
+    }
+
+    /// Register a message consumer for handling messages.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `types` - types of messages to subsribe for
+    /// * `consumer` - `MessageConsumer` that subscribes for given `types`
+    pub fn register_message_consumer(&mut self, types: &Vec<String>, consumer: Box<dyn MessageConsumer>) {
+        self.message_consumers.push(consumer);
+        let mut subscriptions = Vec::new();
+        for subscription in types.iter() {
+            subscriptions.push(subscription.to_string());
+        }
+        self.message_subscriptions.push(subscriptions);
+    }
+
+    /// Send message to all subsribed consumers, only consumers, that subscribed to messages of type
+    /// `message_type` (key in `message`).
+    /// 
+    /// # Arguments
+    ///
+    /// * `message` - message of format that can be parsed to `VadeMessage`
+    pub async fn send_message<'a>(
+        &mut self,
+        message: &str,
+    ) -> Result<VadeResponse, Box<dyn std::error::Error>> {
+        debug!("got message: {:?}", message);
+        let parsed: VadeMessage = serde_json::from_str(message).unwrap();
+        let mut futures = Vec::new();
+        for (i, consumer) in self.message_consumers.iter_mut().enumerate() {
+            let subscriptions = &self.message_subscriptions[i];
+            if subscriptions.iter().any(|i| i == &parsed.message_type) {
+                futures.push(consumer.handle_message(parsed.data.get()))
+            }
+        }
+        let plugin_responses = match try_join_all(futures).await {
+            Ok(response) => response,
+            Err(_e) => return Err(Box::new(SimpleError::new(format!("could not set did document")))),
+        };
+
+        let result = VadeResponse {
+            message_type: parsed.message_type.to_string(),
+            data: plugin_responses,
+        };
+        Ok(result)
     }
 
     /// Sets document for given did name.

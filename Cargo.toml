@@ -16,12 +16,16 @@ keywords = ["did", "ssi", "vc"]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-async-trait = "0.1.24"
-futures = "0.3.4"
+async-trait = "0.1.31"
+env_logger = "0.7.1"
+futures = "0.3.5"
+log = "0.4.8"
+serde = { version = "1.0.110", features = ["derive"] } 
+serde_json = { version = "1.0.53", features = ["preserve_order", "raw_value"] }
 simple-error = "0.2.1"
 
 [dev-dependencies]
-tokio = { version = "0.2.11", features = ["macros", "rt-threaded"] }
+tokio = { version = "0.2.21", features = ["macros", "rt-threaded"] }
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.
