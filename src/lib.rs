@@ -259,6 +259,32 @@
 //! [`Vade`] also supports a more open type of message pipelining instead of message bound directly to VCs and DIDs. Plugins can be registered for generic messages with
 //!
 //! ```rust
+//! extern crate vade;
+//!
+//! use async_trait::async_trait;
+//! use vade::Vade;
+//! use vade::traits::MessageConsumer;
+//!
+//! pub struct TestMessageConsumer {
+//!     message_count: u64,
+//! }
+//!
+//! impl TestMessageConsumer {
+//!     pub fn new() -> TestMessageConsumer {
+//!         TestMessageConsumer {
+//!             message_count: 0,
+//!         }
+//!     }
+//! }
+//!
+//! #[async_trait(?Send)]
+//! impl MessageConsumer for TestMessageConsumer {
+//!     async fn handle_message(&mut self, message_data: &str) -> Result<Option<String>, Box<dyn std::error::Error>> {
+//!         self.message_count = self.message_count + 1;
+//!         Ok(Option::from(format!(r###"{{ "type": "response", "data": {{ "count": {}, "lastMessage": {} }} }}"###, self.message_count, &message_data).to_string()))
+//!     }
+//! }
+//!
 //! async fn example() {
 //!     let mut vade = Vade::new();
 //!     let tmc = TestMessageConsumer::new();
@@ -272,6 +298,32 @@
 //! After this registered plugins will be called when related messages arrive and all registered plugins have to provide a response as `Option<String>`. All responses are collected and returned to caller, e.g.:
 //!
 //! ```rust
+//! # extern crate vade;
+//! #
+//! # use async_trait::async_trait;
+//! # use vade::Vade;
+//! # use vade::traits::MessageConsumer;
+//! #
+//! # pub struct TestMessageConsumer {
+//! #     message_count: u64,
+//! # }
+//! #
+//! # impl TestMessageConsumer {
+//! #     pub fn new() -> TestMessageConsumer {
+//! #         TestMessageConsumer {
+//! #             message_count: 0,
+//! #         }
+//! #     }
+//! # }
+//! #
+//! # #[async_trait(?Send)]
+//! # impl MessageConsumer for TestMessageConsumer {
+//! #     async fn handle_message(&mut self, message_data: &str) -> Result<Option<String>, Box<dyn std::error::Error>> {
+//! #         self.message_count = self.message_count + 1;
+//! #         Ok(Option::from(format!(r###"{{ "type": "response", "data": {{ "count": {}, "lastMessage": {} }} }}"###, self.message_count, &message_data).to_string()))
+//! #     }
+//! # }
+//! #
 //! # async fn example() {
 //! #     let mut vade = Vade::new();
 //! #     let tmc = TestMessageConsumer::new();
@@ -281,6 +333,7 @@
 //! #     );
 //! #
 //! let responses = vade.send_message(r###"{ "type": "message1", "data": {} }"###).await.unwrap();
+//! # }
 //! ```
 //!
 //! Note, that input is provided as a `String` that can be parsed to [`VadeMessage`], so the properties `type` and `data` are mandatory, while `type` controls the plugins, that will receive the values of `data`. `data` is usually formatted as JSON, but can have any format, that is convenient and can be included in JSON documents.
