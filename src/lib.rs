@@ -672,7 +672,7 @@ impl Vade {
         }
         match try_join_all(futures).await {
             Ok(responses) => Ok(responses),
-            Err(_e) => return Err(Box::new(SimpleError::new(format!("could not set did document")))),
+            Err(e) => return Err(Box::new(SimpleError::new(format!("could not set handle message \"{}\"; {}", &parsed.r#type, e)))),
         }
     }
 
