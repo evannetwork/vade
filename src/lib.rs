@@ -279,7 +279,11 @@
 //!
 //! #[async_trait(?Send)]
 //! impl MessageConsumer for TestMessageConsumer {
-//!     async fn handle_message(&mut self, message_data: &str) -> Result<Option<String>, Box<dyn std::error::Error>> {
+//!     async fn handle_message(
+//!         &mut self,
+//!         _message_type: &str,
+//!         message_data: &str,
+//!         ) -> Result<Option<String>, Box<dyn std::error::Error>> {
 //!         self.message_count = self.message_count + 1;
 //!         Ok(Option::from(format!(r###"{{ "type": "response", "data": {{ "count": {}, "lastMessage": {} }} }}"###, self.message_count, &message_data).to_string()))
 //!     }
@@ -318,7 +322,11 @@
 //! #
 //! # #[async_trait(?Send)]
 //! # impl MessageConsumer for TestMessageConsumer {
-//! #     async fn handle_message(&mut self, message_data: &str) -> Result<Option<String>, Box<dyn std::error::Error>> {
+//! #     async fn handle_message(
+//! #         &mut self,
+//! #         _message_type: &str,
+//! #         message_data: &str,
+//! #         ) -> Result<Option<String>, Box<dyn std::error::Error>> {
 //! #         self.message_count = self.message_count + 1;
 //! #         Ok(Option::from(format!(r###"{{ "type": "response", "data": {{ "count": {}, "lastMessage": {} }} }}"###, self.message_count, &message_data).to_string()))
 //! #     }
@@ -659,7 +667,7 @@ impl Vade {
         for (i, consumer) in self.message_consumers.iter_mut().enumerate() {
             let subscriptions = &self.message_subscriptions[i];
             if subscriptions.iter().any(|i| i == &parsed.r#type) {
-                futures.push(consumer.handle_message(parsed.data.get()))
+                futures.push(consumer.handle_message(&parsed.r#type, parsed.data.get()))
             }
         }
         match try_join_all(futures).await {

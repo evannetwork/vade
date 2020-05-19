@@ -92,9 +92,11 @@ pub trait MessageConsumer {
     /// 
     /// # Arguments
     /// 
+    /// * `message_type` - type of message this consumer had subscribed for
     /// * `message_data` - arbitrary data for plugin, e.g. a JSON
     async fn handle_message(
         &mut self,
+        message_type: &str,
         message_data: &str,
     ) -> Result<Option<String>, Box<dyn std::error::Error>>;
 }

@@ -36,7 +36,11 @@ impl TestMessageConsumer {
 
 #[async_trait(?Send)]
 impl MessageConsumer for TestMessageConsumer {
-    async fn handle_message(&mut self, message_data: &str) -> Result<Option<String>, Box<dyn std::error::Error>> {
+    async fn handle_message(
+        &mut self,
+        _message_type: &str,
+        message_data: &str,
+    ) -> Result<Option<String>, Box<dyn std::error::Error>> {
         self.message_count = self.message_count + 1;
         Ok(Option::from(format!(r###"{{ "type": "response", "data": {{ "count": {}, "lastMessage": {} }} }}"###, self.message_count, &message_data).to_string()))
     }
