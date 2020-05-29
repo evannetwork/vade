@@ -605,7 +605,7 @@ impl Vade {
     }
 
     /// Registers new [`DidResolver`] instance. Note, that `did_resolver` is given
-    /// as `Box` to support dynamic avadegnment.
+    /// as `Box` to support dynamic assignment.
     ///
     /// # Arguments
     ///
@@ -616,7 +616,7 @@ impl Vade {
     }
 
     /// Registers new [`Logger`] instance. Note, that `logger` is given as `Box`
-    /// to support dynamic avadegnment.
+    /// to support dynamic assignment.
     ///
     /// # Arguments
     ///
@@ -626,7 +626,7 @@ impl Vade {
     }
 
     /// Registers new `VcdResolver` instance. Note, that `vc_resolver` is given
-    /// as `Box` to support dynamic avadegnment.
+    /// as `Box` to support dynamic assignment.
     ///
     /// # Arguments
     ///
