@@ -168,7 +168,6 @@
 //! # }
 //! ```
 //!
-//!
 //! #### DIDs
 //!
 //! ##### Adding a DID
@@ -255,6 +254,99 @@
 //! # }
 //! ```
 //!
+//! #### Generic Messages
+//!
+//! [`Vade`] also supports a more open type of message pipelining instead of message bound directly to VCs and DIDs. Plugins can be registered for generic messages with
+//!
+//! ```rust
+//! extern crate vade;
+//!
+//! use async_trait::async_trait;
+//! use vade::Vade;
+//! use vade::traits::MessageConsumer;
+//!
+//! pub struct TestMessageConsumer {
+//!     message_count: u64,
+//! }
+//!
+//! impl TestMessageConsumer {
+//!     pub fn new() -> TestMessageConsumer {
+//!         TestMessageConsumer {
+//!             message_count: 0,
+//!         }
+//!     }
+//! }
+//!
+//! #[async_trait(?Send)]
+//! impl MessageConsumer for TestMessageConsumer {
+//!     async fn handle_message(
+//!         &mut self,
+//!         _message_type: &str,
+//!         message_data: &str,
+//!         ) -> Result<Option<String>, Box<dyn std::error::Error>> {
+//!         self.message_count = self.message_count + 1;
+//!         Ok(Option::from(format!(r###"{{ "type": "response", "data": {{ "count": {}, "lastMessage": {} }} }}"###, self.message_count, &message_data).to_string()))
+//!     }
+//! }
+//!
+//! async fn example() {
+//!     let mut vade = Vade::new();
+//!     let tmc = TestMessageConsumer::new();
+//!     vade.register_message_consumer(
+//!         &vec!["message1", "message2"].iter().map(|&x| String::from(x)).collect(),
+//!         Box::from(tmc),
+//!     );
+//! }
+//! ```
+//!
+//! After this registered plugins will be called when related messages arrive and all registered plugins have to provide a response as `Option<String>`. All responses are collected and returned to caller, e.g.:
+//!
+//! ```rust
+//! # extern crate vade;
+//! #
+//! # use async_trait::async_trait;
+//! # use vade::Vade;
+//! # use vade::traits::MessageConsumer;
+//! #
+//! # pub struct TestMessageConsumer {
+//! #     message_count: u64,
+//! # }
+//! #
+//! # impl TestMessageConsumer {
+//! #     pub fn new() -> TestMessageConsumer {
+//! #         TestMessageConsumer {
+//! #             message_count: 0,
+//! #         }
+//! #     }
+//! # }
+//! #
+//! # #[async_trait(?Send)]
+//! # impl MessageConsumer for TestMessageConsumer {
+//! #     async fn handle_message(
+//! #         &mut self,
+//! #         _message_type: &str,
+//! #         message_data: &str,
+//! #         ) -> Result<Option<String>, Box<dyn std::error::Error>> {
+//! #         self.message_count = self.message_count + 1;
+//! #         Ok(Option::from(format!(r###"{{ "type": "response", "data": {{ "count": {}, "lastMessage": {} }} }}"###, self.message_count, &message_data).to_string()))
+//! #     }
+//! # }
+//! #
+//! # async fn example() {
+//! #     let mut vade = Vade::new();
+//! #     let tmc = TestMessageConsumer::new();
+//! #     vade.register_message_consumer(
+//! #         &vec!["message1", "message2"].iter().map(|&x| String::from(x)).collect(),
+//! #         Box::from(tmc),
+//! #     );
+//! #
+//! let responses = vade.send_message(r###"{ "type": "message1", "data": {} }"###).await.unwrap();
+//! # }
+//! ```
+//!
+//! Note, that input is provided as a `String` that can be parsed to [`VadeMessage`], so the properties `type` and `data` are mandatory, while `type` controls the plugins, that will receive the values of `data`. `data` is usually formatted as JSON, but can have any format, that is convenient and can be included in JSON documents.
+//!
+//! This rather open approach opens up a lot of possibilities for implementing own plugins and workflows.
 //!
 //! ## Plugins
 //!
@@ -266,6 +358,7 @@
 //!
 //! - [`VcResolver`]
 //! - [`DidResolver`]
+//! - [`MessageConsumer`]
 //! - [`Logger`] (currently unclear if this plugin will be continued, but can be used for implementation tests)
 //!
 //! An example for a simple plugin is the provided [`RustStorageCache`]. It implements [`DidResolver`] as well as [`VcResolver`] functionalities. For your implementation you can, of course, decide to implement only a single trait in a plugin.
@@ -281,6 +374,7 @@
 //!
 //! - [`register_vc_resolver`]
 //! - [`register_did_resolver`]
+//! - [`register_message_consumer`]
 //!
 //! respectively.
 //!
@@ -329,6 +423,10 @@
 //!
 //! The current validation flow offers only a limited way of feedback for invalidity and may undergo further changes in future.
 //!
+//! #### Generic Messages]
+//!
+//! Messaging is rather straight forward. After registering a [`MessageConsumer`] with [`register_message_consumer`] it will receive messages for all registered `type`s of messages. A [`MessageConsumer`] only hast to implement [`send_message`] to be able to consume and respond to messages from [`Vade`].
+//! 
 //! ### More Plugins
 //!
 //! A plugin working with VCs and DIDs on [evan.network] called [`vade-evan`] has been implemented. Its usage is equivalent to the description above, more details can be found on its project page.
@@ -338,38 +436,54 @@
 //! ## Wasm Support
 //!
 //! Vade supports Wasm! ^^
-//! 
+//!
 //! For an example how to use [`Vade`] in Wasm and a how to guide, have a look at our [vade-wasm-example] project.
 //!
+//! [`check_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.check_did_document
+//! [`check_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.check_vc_document
+//! [`DidResolver`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html
+//! [`get_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.get_did_document
+//! [`get_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.get_vc_document
+//! [`Logger`]: https://docs.rs/vade/*/vade/traits/trait.Logger.html
+//! [`MessageConsumer`]: https://docs.rs/vade/*/vade/traits/trait.MessageConsumer.html
+//! [`register_did_resolver`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_did_resolver
+//! [`register_message_consumer`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_message_consumer
+//! [`register_vc_resolver`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_did_resolver
+//! [`RustStorageCache`]: https://docs.rs/vade/*/vade/plugin/rust_storage_cache/struct.RustStorageCache.html
+//! [`RustVcResolverEvan`]: https://docs.rs/vade-evan/*/vade_evan/plugin/rust_vcresolver_evan/struct.RustVcResolverEvan.html
+//! [`send_message`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.send_message
+//! [`set_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.set_did_document
+//! [`set_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.set_vc_document
+//! [`vade library file`]: https://github.com/evannetwork/vade/blob/develop/src/lib.rs
+//! [`vade-evan`]: https://docs.rs/vade-evan
+//! [`vade::library::traits`]: https://docs.rs/vade/*/vade/traits/index.html
+//! [`Vade`]: https://docs.rs/vade//vade/struct.Vade.html
+//! [`VadeMessage`]: https://docs.rs/vade/*/vade/struct.VadeMessage.html
+//! [`VcResolver`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html
 //! [evan.network]: https://evan.network
 //! [vade-wasm-example]: https://github.com/evannetwork/vade-wasm-example
-//! [`check_did_document`]: traits/trait.DidResolver.html#tymethod.check_did_document
-//! [`check_vc_document`]: traits/trait.VcResolver.html#tymethod.check_vc_document
-//! [`DidResolver`]: traits/trait.DidResolver.html
-//! [`get_did_document`]: traits/trait.DidResolver.html#tymethod.get_did_document
-//! [`get_vc_document`]: traits/trait.VcResolver.html#tymethod.get_vc_document
-//! [`Logger`]: traits/trait.Logger.html
-//! [`register_did_resolver`]: struct.Vade.html#method.register_did_resolver
-//! [`register_vc_resolver`]: struct.Vade.html#method.register_did_resolver
-//! [`RustStorageCache`]: plugin/rust_storage_cache/struct.RustStorageCache.html
-//! [`RustVcResolverEvan`]: https://docs.rs/vade-evan/*/vade_evan/plugin/rust_vcresolver_evan/struct.RustVcResolverEvan.html
-//! [`set_did_document`]: traits/trait.DidResolver.html#tymethod.set_did_document
-//! [`set_vc_document`]: traits/trait.VcResolver.html#tymethod.set_vc_document
-//! [`vade-evan`]: https://docs.rs/vade-evan
-//! [`vade::library::traits`]: traits/index.html
-//! [`vade library file`]: https://github.com/evannetwork/vade/blob/develop/src/lib.rs
-//! [`Vade`]: struct.Vade.html
-//! [`VcResolver`]: traits/trait.VcResolver.html
+
+extern crate env_logger;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate simple_error;
 
 pub mod plugin;
 pub mod traits;
 
-#[macro_use]
-extern crate simple_error;
-
 use futures::future::{ select_ok, try_join_all };
+use serde::{Serialize, Deserialize};
+use serde_json::value::RawValue;
 use simple_error::SimpleError;
-use traits::{ DidResolver, Logger, VcResolver };
+use traits::{ DidResolver, Logger, MessageConsumer, VcResolver };
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct VadeMessage<'a> {
+    r#type: String,
+    #[serde(borrow)]
+    data: &'a RawValue,
+}
 
 /// Vade library, that holds plugins and delegates calls to them.
 pub struct Vade {
@@ -380,15 +494,24 @@ pub struct Vade {
     pub loggers: Vec<Box<dyn Logger>>,
     /// Vector of supported VC resolvers.
     pub vc_resolvers: Vec<Box<dyn VcResolver>>,
+    /// plugins, that subscribed for generic messages
+    pub message_consumers: Vec<Box<dyn MessageConsumer>>,
+    /// subscribed message types for each consumer
+    pub message_subscriptions: Vec<Vec<String>>,
 }
 
 impl Vade {
     /// Creates new Vade instance, vectors are initialized as empty.
     pub fn new() -> Vade {
+        match env_logger::try_init() {
+            Ok(_) | Err(_) => (),
+        };
         Vade {
             did_resolvers: Vec::new(),
             loggers: Vec::new(),
             vc_resolvers: Vec::new(),
+            message_consumers: Vec::new(),
+            message_subscriptions: Vec::new(),
         }
     }
 
@@ -482,7 +605,7 @@ impl Vade {
     }
 
     /// Registers new [`DidResolver`] instance. Note, that `did_resolver` is given
-    /// as `Box` to support dynamic avadegnment.
+    /// as `Box` to support dynamic assignment.
     ///
     /// # Arguments
     ///
@@ -493,7 +616,7 @@ impl Vade {
     }
 
     /// Registers new [`Logger`] instance. Note, that `logger` is given as `Box`
-    /// to support dynamic avadegnment.
+    /// to support dynamic assignment.
     ///
     /// # Arguments
     ///
@@ -503,7 +626,7 @@ impl Vade {
     }
 
     /// Registers new `VcdResolver` instance. Note, that `vc_resolver` is given
-    /// as `Box` to support dynamic avadegnment.
+    /// as `Box` to support dynamic assignment.
     ///
     /// # Arguments
     ///
@@ -511,6 +634,46 @@ impl Vade {
     ///                   trait
     pub fn register_vc_resolver(&mut self, vc_resolver: Box<dyn VcResolver>) {
         self.vc_resolvers.push(vc_resolver);
+    }
+
+    /// Register a message consumer for handling messages.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `types` - types of messages to subsribe for
+    /// * `consumer` - `MessageConsumer` that subscribes for given `types`
+    pub fn register_message_consumer(&mut self, types: &Vec<String>, consumer: Box<dyn MessageConsumer>) {
+        self.message_consumers.push(consumer);
+        let mut subscriptions = Vec::new();
+        for subscription in types.iter() {
+            subscriptions.push(subscription.to_string());
+        }
+        self.message_subscriptions.push(subscriptions);
+    }
+
+    /// Send message to all subsribed consumers, only consumers, that subscribed to messages of type
+    /// `message_type` (key in `message`).
+    /// 
+    /// # Arguments
+    ///
+    /// * `message` - message of format that can be parsed to `VadeMessage`
+    pub async fn send_message<'a>(
+        &mut self,
+        message: &str,
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+        debug!("got message: {:?}", message);
+        let parsed: VadeMessage = serde_json::from_str(message).unwrap();
+        let mut futures = Vec::new();
+        for (i, consumer) in self.message_consumers.iter_mut().enumerate() {
+            let subscriptions = &self.message_subscriptions[i];
+            if subscriptions.iter().any(|i| i == &parsed.r#type) {
+                futures.push(consumer.handle_message(&parsed.r#type, parsed.data.get()))
+            }
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => Ok(responses),
+            Err(e) => return Err(Box::new(SimpleError::new(format!("could not set handle message \"{}\"; {}", &parsed.r#type, e)))),
+        }
     }
 
     /// Sets document for given did name.
