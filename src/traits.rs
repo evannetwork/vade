@@ -21,6 +21,16 @@
 use async_trait::async_trait;
 use std::any::Any;
 
+/// Wrapper enum for a plugins return value
+pub enum VadePluginResultValue<T> {
+    /// Plugin does not implement this function
+    NotImplemented,
+    /// Plugin implements function but is not "interested" in fullfilling function call
+    Ignored,
+    /// Plugin handled request and returned a value of type T
+    Success(T),
+}
+
 /// Implementing struct supports fetching did documents by their id.
 #[async_trait(?Send)]
 pub trait DidResolver {
@@ -141,4 +151,148 @@ pub trait VcResolver {
         key: &str,
         value: &str,
     ) -> Result<(), Box<dyn std::error::Error>>;
+}
+
+#[async_trait(?Send)]
+#[allow(unused_variables)]
+pub trait VadePlugin {
+    async fn did_create(
+        &mut self,
+        did_method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    async fn did_resolve(&mut self, _did: &str) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    async fn did_update(
+        &mut self,
+        did_method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+    /// Creates a new credential definition and stores it on-chain.
+    async fn vc_zkp_create_credential_definition(
+        &mut self,
+        did_method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    /// Creates a `CredentialOffer` message.
+    async fn vc_zkp_create_credential_offer(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    /// Creates a `CredentialProposal` message.
+    async fn vc_zkp_create_credential_proposal(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    /// Creates a new credential schema and stores it on-chain.
+    async fn vc_zkp_create_credential_schema(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    /// Creates a new revocation registry definition and stores it on-chain.
+    async fn vc_zkp_create_revocation_registry_definition(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    async fn vc_zkp_update_revocation_registry(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    /// Issues a new credential.
+    async fn vc_zkp_issue_credential(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    /// Creates a `CredentialProof` message.
+    async fn vc_zkp_present_proof(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+    
+    /// Creates a `CredentialRequest` message.
+    async fn vc_zkp_request_credential(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+    
+    /// Creates a `ProofRequest` message
+    async fn vc_zkp_request_proof(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    /// Revokes a credential and updates the revocation registry definition.
+    async fn vc_zkp_revoke_credential(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    /// Verifies a given proof presentation in accordance to specified proof request
+    async fn vc_zkp_verify_proof(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
 }

@@ -472,11 +472,11 @@ extern crate simple_error;
 pub mod plugin;
 pub mod traits;
 
-use futures::future::{ select_ok, try_join_all };
-use serde::{Serialize, Deserialize};
+use futures::future::{select_ok, try_join_all};
+use serde::{Deserialize, Serialize};
 use serde_json::value::RawValue;
 use simple_error::SimpleError;
-use traits::{ DidResolver, Logger, MessageConsumer, VcResolver };
+use traits::{DidResolver, Logger, MessageConsumer, VcResolver, VadePlugin, VadePluginResultValue};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct VadeMessage<'a> {
@@ -498,6 +498,10 @@ pub struct Vade {
     pub message_consumers: Vec<Box<dyn MessageConsumer>>,
     /// subscribed message types for each consumer
     pub message_subscriptions: Vec<Vec<String>>,
+    /// registered plugins
+    pub plugins: Vec<Box<dyn VadePlugin>>,
+    /// registered plugins' functions
+    pub plugins_functions: Vec<Option<Vec<String>>>,
 }
 
 impl Vade {
@@ -512,6 +516,8 @@ impl Vade {
             vc_resolvers: Vec::new(),
             message_consumers: Vec::new(),
             message_subscriptions: Vec::new(),
+            plugins: Vec::new(),
+            plugins_functions: Vec::new(),
         }
     }
 
@@ -707,6 +713,387 @@ impl Vade {
         match try_join_all(futures).await {
             Ok(_) => Ok(()),
             Err(_e) => Err(Box::new(SimpleError::new(format!("could not set vc document")))),
+        }
+    }
+
+    pub fn register_plugin(&mut self, plugin: Box<dyn VadePlugin>) {
+        self.plugins.push(plugin);
+    }
+
+    pub async fn did_create(
+        &mut self,
+        did_method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.did_create(did_method, options, payload));
+        }
+        // TODO find a better solution than copy & paste >.>
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not create did for method \"{}\"; {}", &did_method, e)))
+        }
+    }
+
+    pub async fn did_resolve(
+        &mut self,
+        did: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.did_resolve(did));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not resolve did \"{}\"; {}", &did, e)))
+        }
+    }
+
+    pub async fn did_update(
+        &mut self,
+        did: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.did_update(did, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not update did \"{}\"; {}", &did, e)))
+        }
+    }
+
+    pub async fn vc_zkp_create_credential_definition(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_create_credential_definition(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not create credential definition for method \"{}\"; {}", &method, e)))
+        }
+    }
+
+    pub async fn vc_zkp_create_credential_offer(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_create_credential_offer(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not create credential offer for method \"{}\"; {}", &method, e)))
+        }
+    }
+
+    pub async fn vc_zkp_create_credential_proposal(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_create_credential_proposal(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not create credential proposal for method \"{}\"; {}", &method, e)))
+        }
+    }
+
+    pub async fn vc_zkp_create_credential_schema(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_create_credential_schema(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not create credential schema for method \"{}\"; {}", &method, e)))
+        }
+    }
+
+    pub async fn vc_zkp_create_revocation_registry_definition(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_create_revocation_registry_definition(
+                method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not create revocation registry definition for method \"{}\"; {}",
+                &method, e))
+            ),
+        }
+    }
+
+    pub async fn vc_zkp_update_revocation_registry(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_update_revocation_registry(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not update revocation registry for method \"{}\"; {}", &method, e)))
+        }
+    }
+
+    pub async fn vc_zkp_issue_credential(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_issue_credential(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not issue credential for method \"{}\"; {}", &method, e)))
+        }
+    }
+
+    pub async fn vc_zkp_present_proof(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_present_proof(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not present proof for method \"{}\"; {}", &method, e)))
+        }
+    }
+
+    pub async fn vc_zkp_request_credential(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_request_credential(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not request credential for method \"{}\"; {}", &method, e)))
+        }
+    }
+
+    pub async fn vc_zkp_request_proof(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_request_proof(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not request proof for method \"{}\"; {}", &method, e)))
+        }
+    }
+
+    pub async fn vc_zkp_revoke_credential(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_revoke_credential(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not revoke credential for method \"{}\"; {}", &method, e)))
+        }
+    }
+
+    pub async fn vc_zkp_verify_proof(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_verify_proof(method, options, payload));
+        }
+        match try_join_all(futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                Ok(filtered_results)
+            },
+            Err(e) => Err(Box::from(format!(
+                "could not verify proof for method \"{}\"; {}", &method, e)))
         }
     }
 }
