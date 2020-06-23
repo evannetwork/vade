@@ -19,142 +19,22 @@
 //! [`Vade`]: crate::Vade
 
 use async_trait::async_trait;
-use std::any::Any;
 
 /// Wrapper enum for a plugins return value
 pub enum VadePluginResultValue<T> {
     /// Plugin does not implement this function
     NotImplemented,
-    /// Plugin implements function but is not "interested" in fullfilling function call
+    /// Plugin implements function but is not "interested" in fullfilling function call.
+    /// This mostly signs that the responding plugin does not resolve/handle given method,
+    /// e.g. a plugin may resolve dids with prefix `did:example123` and not dids with
+    /// prefix `did:example456`.
     Ignored,
     /// Plugin handled request and returned a value of type T
     Success(T),
 }
 
-/// Implementing struct supports fetching did documents by their id.
 #[async_trait(?Send)]
-pub trait DidResolver {
-    /// Checks given DID document.
-    /// A DID document is considered as valid if returning ().
-    /// Resolver may throw to indicate
-    /// - that it is not responsible for this DID
-    /// - that it considers this DID as invalid
-    ///
-    /// # Arguments
-    ///
-    /// * `did_name` - did_name to check document for
-    /// * `value` - value to check
-    async fn check_did(
-        &self,
-        did_name: &str,
-        value: &str,
-    ) -> Result<(), Box<dyn std::error::Error>>;
-
-    /// Gets document for given did name.
-    ///
-    /// # Arguments
-    ///
-    /// * `did_name` - did_name to fetch
-    async fn get_did_document(
-        &self,
-        key: &str,
-    ) -> Result<String, Box<dyn std::error::Error>>;
-
-    /// Sets document for given did name.
-    ///
-    /// # Arguments
-    ///
-    /// * `did_name` - did_name to set value for
-    /// * `value` - value to set
-    async fn set_did_document(
-        &mut self,
-        key: &str,
-        value: &str,
-    ) -> Result<(), Box<dyn std::error::Error>>;
-}
-
-/// Implementing struct supports logging, for now only `log` is supported.
-pub trait Logger {
-    /// Cast to `Any` for downcasting,
-    /// see https://stackoverflow.com/questions/33687447/how-to-get-a-reference-to-a-concrete-type-from-a-trait-object.
-    fn as_any(
-        &self,
-    ) -> &dyn Any;
-
-    /// Logs given message with given level.
-    /// 
-    /// # Arguments
-    ///
-    /// * `message` - message to log
-    /// * `level` - optional arguments for logging level, levels may differ based on environment
-    fn log(
-        &self,
-        message: &str,
-        level: Option<&str>,
-    );
-}
-
-#[async_trait(?Send)]
-/// Implementing sruct support generic message handling, has to be registered with
-/// Vade::register_message_consumer and subscribed to specific message types.
-pub trait MessageConsumer {
-    /// Reacts to a given message and optionally returns a reply.
-    /// 
-    /// # Arguments
-    /// 
-    /// * `message_type` - type of message this consumer had subscribed for
-    /// * `message_data` - arbitrary data for plugin, e.g. a JSON
-    async fn handle_message(
-        &mut self,
-        message_type: &str,
-        message_data: &str,
-    ) -> Result<Option<String>, Box<dyn std::error::Error>>;
-}
-
-/// Implementing struct supports fetching vc documents by their id.
-#[async_trait(?Send)]
-pub trait VcResolver {
-    /// Checks given VC document.
-    /// A VC document is considered as valid if returning ().
-    /// Resolver may throw to indicate
-    /// - that it is not responsible for this VC
-    /// - that it considers this VC as invalid
-    ///
-    /// # Arguments
-    ///
-    /// * `vc_id` - vc_id to check document for
-    /// * `value` - value to check
-    async fn check_vc(
-        &self,
-        vc_id: &str,
-        value: &str,
-    ) -> Result<(), Box<dyn std::error::Error>>;
-
-    /// Gets document for given vc name.
-    ///
-    /// # Arguments
-    ///
-    /// * `vc_name` - vc_name to fetch
-    async fn get_vc_document(
-        &self,
-        vd_id: &str,
-    ) -> Result<String, Box<dyn std::error::Error>>;
-
-    /// Sets document for given vc name.
-    ///
-    /// # Arguments
-    ///
-    /// * `vc_name` - vc_name to set value for
-    /// * `value` - value to set
-    async fn set_vc_document(
-        &mut self,
-        key: &str,
-        value: &str,
-    ) -> Result<(), Box<dyn std::error::Error>>;
-}
-
-#[async_trait(?Send)]
-#[allow(unused_variables)]
+#[allow(unused_variables)]  // to keep proper names for documentation and derived implementations
 pub trait VadePlugin {
     async fn did_create(
         &mut self,
@@ -171,7 +51,7 @@ pub trait VadePlugin {
 
     async fn did_update(
         &mut self,
-        did_method: &str,
+        did: &str,
         options: &str,
         payload: &str,
     ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {

@@ -17,8 +17,7 @@
 extern crate vade;
 
 use async_trait::async_trait;
-use vade::traits::*;
-use vade::Vade;
+use vade::{Vade, VadePlugin, VadePluginResultValue};
 
 const EXAMPLE_DID_DOCUMENT_STR: &str = r###"{
     "@context": "https://www.w3.org/ns/did/v1",
