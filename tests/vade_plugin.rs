@@ -24,7 +24,6 @@ const EXAMPLE_DID_DOCUMENT_STR: &str = r###"{
     "id": "did:example:123456789abcdefghi"
 }"###;
 
-
 pub struct TestPlugin {}
 
 impl TestPlugin {
@@ -48,7 +47,9 @@ impl VadePlugin for TestPlugin {
         _options: &str,
         _payload: &str,
     ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
-        Ok(VadePluginResultValue::Success(EXAMPLE_DID_DOCUMENT_STR.to_string()))
+        Ok(VadePluginResultValue::Success(
+            EXAMPLE_DID_DOCUMENT_STR.to_string(),
+        ))
     }
 
     // test plugin did_resolve just ignores this request
@@ -74,13 +75,12 @@ impl VadePlugin for TestPlugin {
 async fn vade_plugin_plugin_can_call_functions_implemented_in_plugin() {
     let mut tp: TestPlugin = TestPlugin::new();
     match tp.did_create("", "", "").await {
-        Ok(response) => {
-            match response {
-                VadePluginResultValue::Success(result) =>
-                    assert_eq!(result, EXAMPLE_DID_DOCUMENT_STR.to_string()),
-                _ => panic!("unexpected result"),
+        Ok(response) => match response {
+            VadePluginResultValue::Success(result) => {
+                assert_eq!(result, EXAMPLE_DID_DOCUMENT_STR.to_string())
             }
-        }
+            _ => panic!("unexpected result"),
+        },
         Err(e) => panic!(format!("{}", e)),
     }
 }

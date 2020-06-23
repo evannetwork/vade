@@ -14,8 +14,8 @@
   limitations under the License.
 */
 
-use futures::future::try_join_all;
 use crate::{VadePlugin, VadePluginResultValue};
+use futures::future::try_join_all;
 
 /// Vade library, that holds plugins and delegates calls to them.
 pub struct Vade {
@@ -56,9 +56,11 @@ impl Vade {
                 }
                 self.log_fun_leave("did_create", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not create did for method \"{}\"; {}", &did_method, e)))
+                "could not create did for method \"{}\"; {}",
+                &did_method, e
+            ))),
         }
     }
 
@@ -81,9 +83,11 @@ impl Vade {
                 }
                 self.log_fun_leave("did_resolve", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not resolve did \"{}\"; {}", &did, e)))
+                "could not resolve did \"{}\"; {}",
+                &did, e
+            ))),
         }
     }
 
@@ -108,9 +112,11 @@ impl Vade {
                 }
                 self.log_fun_leave("did_update", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not update did \"{}\"; {}", &did, e)))
+                "could not update did \"{}\"; {}",
+                &did, e
+            ))),
         }
     }
 
@@ -138,11 +144,16 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_create_credential_definition", filtered_results.len());
+                self.log_fun_leave(
+                    "vc_zkp_create_credential_definition",
+                    filtered_results.len(),
+                );
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not create credential definition for method \"{}\"; {}", &method, e)))
+                "could not create credential definition for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
@@ -167,9 +178,11 @@ impl Vade {
                 }
                 self.log_fun_leave("vc_zkp_create_credential_offer", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not create credential offer for method \"{}\"; {}", &method, e)))
+                "could not create credential offer for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
@@ -194,9 +207,11 @@ impl Vade {
                 }
                 self.log_fun_leave("vc_zkp_create_credential_proposal", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not create credential proposal for method \"{}\"; {}", &method, e)))
+                "could not create credential proposal for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
@@ -221,9 +236,11 @@ impl Vade {
                 }
                 self.log_fun_leave("vc_zkp_create_credential_schema", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not create credential schema for method \"{}\"; {}", &method, e)))
+                "could not create credential schema for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
@@ -236,8 +253,9 @@ impl Vade {
         self.log_fun_enter("vc_zkp_create_revocation_registry_definition");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
-            futures.push(plugin.vc_zkp_create_revocation_registry_definition(
-                method, options, payload));
+            futures.push(
+                plugin.vc_zkp_create_revocation_registry_definition(method, options, payload),
+            );
         }
         match try_join_all(futures).await {
             Ok(responses) => {
@@ -248,13 +266,15 @@ impl Vade {
                     }
                 }
                 self.log_fun_leave(
-                    "vc_zkp_create_revocation_registry_definition", filtered_results.len());
+                    "vc_zkp_create_revocation_registry_definition",
+                    filtered_results.len(),
+                );
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
                 "could not create revocation registry definition for method \"{}\"; {}",
-                &method, e))
-            ),
+                &method, e
+            ))),
         }
     }
 
@@ -279,9 +299,11 @@ impl Vade {
                 }
                 self.log_fun_leave("vc_zkp_update_revocation_registry", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not update revocation registry for method \"{}\"; {}", &method, e)))
+                "could not update revocation registry for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
@@ -306,9 +328,11 @@ impl Vade {
                 }
                 self.log_fun_leave("vc_zkp_issue_credential", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not issue credential for method \"{}\"; {}", &method, e)))
+                "could not issue credential for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
@@ -333,9 +357,11 @@ impl Vade {
                 }
                 self.log_fun_leave("vc_zkp_present_proof", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not present proof for method \"{}\"; {}", &method, e)))
+                "could not present proof for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
@@ -360,9 +386,11 @@ impl Vade {
                 }
                 self.log_fun_leave("vc_zkp_request_credential", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not request credential for method \"{}\"; {}", &method, e)))
+                "could not request credential for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
@@ -387,9 +415,11 @@ impl Vade {
                 }
                 self.log_fun_leave("vc_zkp_request_proof", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not request proof for method \"{}\"; {}", &method, e)))
+                "could not request proof for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
@@ -414,9 +444,11 @@ impl Vade {
                 }
                 self.log_fun_leave("vc_zkp_revoke_credential", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not revoke credential for method \"{}\"; {}", &method, e)))
+                "could not revoke credential for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
@@ -441,16 +473,21 @@ impl Vade {
                 }
                 self.log_fun_leave("vc_zkp_verify_proof", filtered_results.len());
                 Ok(filtered_results)
-            },
+            }
             Err(e) => Err(Box::from(format!(
-                "could not verify proof for method \"{}\"; {}", &method, e)))
+                "could not verify proof for method \"{}\"; {}",
+                &method, e
+            ))),
         }
     }
 
     fn log_fun_enter(&mut self, name: &str) {
-        debug!(r#"delegating function "{}" to {} plugins"#, &name, self.plugins.len());
+        debug!(
+            r#"delegating function "{}" to {} plugins"#,
+            &name,
+            self.plugins.len()
+        );
     }
-
 
     fn log_fun_leave(&mut self, name: &str, response_count: usize) {
         debug!(

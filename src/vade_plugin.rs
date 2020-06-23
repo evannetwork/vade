@@ -15,7 +15,7 @@
 */
 
 //! Traits for interoperability with [`Vade`] instances.
-//! 
+//!
 //! [`Vade`]: crate::Vade
 
 use async_trait::async_trait;
@@ -34,7 +34,7 @@ pub enum VadePluginResultValue<T> {
 }
 
 #[async_trait(?Send)]
-#[allow(unused_variables)]  // to keep proper names for documentation and derived implementations
+#[allow(unused_variables)] // to keep proper names for documentation and derived implementations
 pub trait VadePlugin {
     async fn did_create(
         &mut self,
@@ -45,7 +45,10 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    async fn did_resolve(&mut self, _did: &str) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    async fn did_resolve(
+        &mut self,
+        _did: &str,
+    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -135,7 +138,7 @@ pub trait VadePlugin {
     ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
-    
+
     /// Creates a `CredentialRequest` message.
     async fn vc_zkp_request_credential(
         &mut self,
@@ -145,7 +148,7 @@ pub trait VadePlugin {
     ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
-    
+
     /// Creates a `ProofRequest` message
     async fn vc_zkp_request_proof(
         &mut self,
