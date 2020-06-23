@@ -41,14 +41,14 @@ pub trait VadePlugin {
         did_method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
     async fn did_resolve(
         &mut self,
         _did: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -57,7 +57,7 @@ pub trait VadePlugin {
         did: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
     /// Creates a new credential definition and stores it on-chain.
@@ -66,7 +66,7 @@ pub trait VadePlugin {
         did_method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -76,7 +76,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -86,7 +86,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -96,7 +96,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -106,7 +106,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -115,7 +115,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -125,7 +125,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -135,7 +135,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -145,7 +145,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -155,7 +155,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -165,7 +165,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -175,7 +175,7 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
 }

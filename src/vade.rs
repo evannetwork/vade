@@ -39,7 +39,7 @@ impl Vade {
         did_method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("did_create");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -67,7 +67,7 @@ impl Vade {
     pub async fn did_resolve(
         &mut self,
         did: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("did_resolve");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -96,7 +96,7 @@ impl Vade {
         did: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("did_update");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -130,7 +130,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_create_credential_definition");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -162,7 +162,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_create_credential_offer");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -191,7 +191,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_create_credential_proposal");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -220,7 +220,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_create_credential_schema");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -249,7 +249,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_create_revocation_registry_definition");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -283,7 +283,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_update_revocation_registry");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -312,7 +312,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_issue_credential");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -341,7 +341,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_present_proof");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -370,7 +370,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_request_credential");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -399,7 +399,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_request_proof");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -428,7 +428,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_revoke_credential");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
@@ -457,7 +457,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
         self.log_fun_enter("vc_zkp_verify_proof");
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {

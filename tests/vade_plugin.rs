@@ -46,17 +46,17 @@ impl VadePlugin for TestPlugin {
         _did_method: &str,
         _options: &str,
         _payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
-        Ok(VadePluginResultValue::Success(
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::Success(Some(
             EXAMPLE_DID_DOCUMENT_STR.to_string(),
-        ))
+        )))
     }
 
     // test plugin did_resolve just ignores this request
     async fn did_resolve(
         &mut self,
         _did: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::Ignored)
     }
 
@@ -66,7 +66,7 @@ impl VadePlugin for TestPlugin {
         _did: &str,
         _options: &str,
         _payload: &str,
-    ) -> Result<VadePluginResultValue<String>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Err(Box::from("yikes"))
     }
 }
@@ -77,7 +77,7 @@ async fn vade_plugin_plugin_can_call_functions_implemented_in_plugin() {
     match tp.did_create("", "", "").await {
         Ok(response) => match response {
             VadePluginResultValue::Success(result) => {
-                assert_eq!(result, EXAMPLE_DID_DOCUMENT_STR.to_string())
+                assert_eq!(result.unwrap(), EXAMPLE_DID_DOCUMENT_STR.to_string())
             }
             _ => panic!("unexpected result"),
         },
@@ -105,7 +105,10 @@ async fn vade_plugin_vade_can_call_functions_implemented_in_plugin() {
     let mut vade = Vade::new();
     vade.register_plugin(Box::from(tp));
     match vade.did_create("", "", "").await {
-        Ok(results) => assert_eq!(results[0], EXAMPLE_DID_DOCUMENT_STR.to_string()),
+        Ok(results) => assert_eq!(
+            results[0].as_ref().unwrap().to_string(),
+            EXAMPLE_DID_DOCUMENT_STR.to_string()
+        ),
         Err(e) => panic!(format!("{}", e)),
     };
 }
