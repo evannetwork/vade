@@ -18,11 +18,11 @@ use async_trait::async_trait;
 
 /// Wrapper enum for a plugins return value
 pub enum VadePluginResultValue<T> {
-    /// Plugin does not implement this function, this is returnd by default as the
+    /// Plugin does not implement this function, this is returned by default as the
     /// [`VadePlugin`](https://docs.rs/vade/*/vade/trait.VadePlugin.html)
-    /// trait offers a default implementation for every function (which returns `Notmplemented`).
+    /// trait offers a default implementation for every function (which returns `NotImplemented`).
     NotImplemented,
-    /// Plugin implements function but is not "interested" in fullfilling function call.
+    /// Plugin implements function but is not "interested" in fulfilling function call.
     /// This mostly signs that the responding plugin does not resolve/handle given method,
     /// e.g. a plugin may resolve dids with prefix `did:example123` and not dids with
     /// prefix `did:example456`.
@@ -146,7 +146,7 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
     
-    /// Creats a new zero-knowledge proof credential definition.
+    /// Creates a new zero-knowledge proof credential definition.
     ///
     /// # Arguments
     ///
@@ -179,7 +179,7 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    /// Creats a new zero-knowledge proof credential offer.
+    /// Creates a new zero-knowledge proof credential offer.
     ///
     /// # Arguments
     ///
@@ -211,7 +211,7 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    /// Creats a new zero-knowledge proof credential proposal.
+    /// Creates a new zero-knowledge proof credential proposal.
     ///
     /// # Arguments
     ///
@@ -244,7 +244,7 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    /// Creats a new zero-knowledge proof credential schema.
+    /// Creates a new zero-knowledge proof credential schema.
     ///
     /// # Arguments
     ///
@@ -277,7 +277,7 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    /// Creats a new definition for a zero-knowledge proof revocation registry.
+    /// Creates a new definition for a zero-knowledge proof revocation registry.
     ///
     /// # Arguments
     ///

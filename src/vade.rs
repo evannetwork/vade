@@ -262,7 +262,7 @@ impl Vade {
         self.plugins.push(plugin);
     }
 
-    /// Creats a new zero-knowledge proof credential definition.
+    /// Creates a new zero-knowledge proof credential definition.
     ///
     /// # Arguments
     ///
@@ -316,7 +316,7 @@ impl Vade {
         }
     }
 
-    /// Creats a new zero-knowledge proof credential offer.
+    /// Creates a new zero-knowledge proof credential offer.
     ///
     /// # Arguments
     ///
@@ -367,7 +367,7 @@ impl Vade {
         }
     }
 
-    /// Creats a new zero-knowledge proof credential proposal.
+    /// Creates a new zero-knowledge proof credential proposal.
     ///
     /// # Arguments
     ///
@@ -418,7 +418,7 @@ impl Vade {
         }
     }
 
-    /// Creats a new zero-knowledge proof credential schema.
+    /// Creates a new zero-knowledge proof credential schema.
     ///
     /// # Arguments
     ///
@@ -469,7 +469,7 @@ impl Vade {
         }
     }
 
-    /// Creats a new definition for a zero-knowledge proof revocation registry.
+    /// Creates a new definition for a zero-knowledge proof revocation registry.
     ///
     /// # Arguments
     ///
