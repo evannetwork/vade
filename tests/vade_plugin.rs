@@ -14,8 +14,6 @@
   limitations under the License.
 */
 
-extern crate vade;
-
 use async_trait::async_trait;
 use vade::{Vade, VadePlugin, VadePluginResultValue};
 
@@ -27,7 +25,7 @@ const EXAMPLE_DID_DOCUMENT_STR: &str = r###"{
 pub struct TestPlugin {}
 
 impl TestPlugin {
-    pub fn new() -> TestPlugin {
+    pub fn new() -> Self {
         TestPlugin {}
     }
 }
@@ -105,10 +103,14 @@ async fn vade_plugin_vade_can_call_functions_implemented_in_plugin() {
     let mut vade = Vade::new();
     vade.register_plugin(Box::from(tp));
     match vade.did_create("", "", "").await {
-        Ok(results) => assert_eq!(
-            results[0].as_ref().unwrap().to_string(),
-            EXAMPLE_DID_DOCUMENT_STR.to_string()
-        ),
+        Ok(results) => {
+            assert_eq!(
+                results[0].as_ref().unwrap().to_string(),
+                EXAMPLE_DID_DOCUMENT_STR.to_string()
+            );
+
+            println!("created did: {}", results[0].as_ref().unwrap().to_string());
+        }
         Err(e) => panic!(format!("{}", e)),
     };
 }

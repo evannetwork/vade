@@ -6,245 +6,67 @@
 
 ## About
 
-This library is intended to be used as a core library for developing own self-sovereign identity based applications.
+This library is a framework for working with VCs and DIDs of different platforms and types in a constant manner. Even if the actual implementation and logic behind them may change, vade offers a consistent interface to work with them.
 
-So why the name? "Vade" is an acronym for "VC and DID engine". It focuses on working with VCs and DIDs but does not hold much logic concerning their structure. Confused? Guessed as much, so what this library actually does is:
+The name "Vade" is an acronym for "VC and DID engine" and focuses on working with VCs and DIDs. It has been designed with the idea of offering a consistent interface to work with while supporting to move the actual work into plugins.
 
-- offering traits that define how actual implementations (aka "plugins") for working with VCs and DIDs should behave
-- storing those plugins in a [`Vade`] instance
-- querying against all registered plugins for certain actions (e.g. for getting VCs/DIDs)
+This library is currently under development. Behavior, as well as provided exports, will most probably change over time.
 
-It has been designed with the idea of offering a consistent interface to work with while supporting to move the actual work into plugins, which also helps to reduce the dependencies.
+Documentation about [`Vade`]s functions and it's meaning can be found [`here`](https://docs.rs/vade/*/vade/struct.Vade.html)
 
-This library is currently under development. Behavior, as well as provided traits, will most probably change over time.
-
-## Basic Flow
-
-When a [`Vade`] instance and its plugins have been set up (see next section), it will delegate calls to its plugins.
-
-For example when fetching a VC document with a [`Vade`] instance with two plugins (a [`RustStorageCache`] and a [`RustVcResolverEvan`]) the flow looks like this:
-
-![vade_plugin_flow](https://user-images.githubusercontent.com/1394421/81380160-b0322c00-910a-11ea-8670-50455650497b.png)
-
-## Usage
-
-### Basic Usage
-
-First add `vade` as a dependency to your `Cargo.toml`. Then you can create new instances in your code (taken from our tests):
+## Example Usage
 
 ```rust
-extern crate vade;
-
 use vade::Vade;
+use some_crate::ExamplePlugin;
 
-#[test]
-fn library_can_be_created() {
-    let _vade = Vade::new();
-}
-```
-
-Okay, that did not do much yet. The core library also offers a simple in-memory cache, called [`RustStorageCache`], which can be used when working with VC and DID documents, that are available offline and should just be stored and/or retrieved locally. So to use [`RustStorageCache`] as a [`VcResolver`], we just need to add it as a [`VcResolver`] plugin:
-
-```rust
-extern crate vade;
-
-use vade::Vade;
-use vade::traits::VcResolver;
-use vade::plugin::rust_storage_cache::RustStorageCache;
-
-
-#[tokio::test]
-async fn example() {
+async fn example_vade_usage() {
+    let ep: ExamplePlugin = ExamplePlugin::new();
     let mut vade = Vade::new();
-    let storage = RustStorageCache::new();
-    vade.register_vc_resolver(Box::from(storage));
+    vade.register_plugin(Box::from(ep));
 
-    match vade.set_vc_document("vc:example123", "{}").await {
-        Ok(()) => (),
-        Err(e) => panic!(format!("{}", e)),
-    }
-    let fetched = vade.get_vc_document("vc:example123").await.unwrap();
-    assert!(fetched == "{}");
+    match vade.did_create("did:example", "", "").await {
+        Ok(results) =>
+            let result = results[0].as_ref().unwrap().to_string();
+            println!("created did: {}", result);
+        ),
+        Err(e) => panic!(format!("could not create did; {}", e)),
+    };
 }
 ```
 
-Keep in mind, that the [`RustStorageCache`] resolver can be considered a reference implementation about how resolvers may behave and that it does not validate integrity and validity of given documents. For features like these, you can implement your own resolvers by following the respective traits.
+As you can see, an instance of `ExamplePlugin` is created and handed over to a [`Vade`] instance with [`register_plugin`]. To be a valid argument for this, `ExamplePlugin` needs to implement [`VadePlugin`].
 
-### Examples
+[`Vade`] then delegates the call of [`did_create`] and *all* other functions with the same name as the functions of [`VadePlugin`] to *all* registered plugins, so the result of such calls is a `Vec` of optional `String` values (`Vec<Option<String>>`).
 
-In the examples here initialization is omitted to keep the readability up. If you want to see the full flow code, you can have a look at the beginning of the [`vade library file`].
+## Basic Plugin Flow
 
-#### VCs
+Calls of plugin related functions follow the rule set described here:
 
-##### Adding a VC
+- a [`Vade`] instance delegates **all** calls of plugin related functions to **all** registered plugins
+- those [`VadePlugin`] instances then may or may not process the request
+- requests may be ignored due to not being implemented or due to ignoring them due to plugin internal logic (e.g. if a did method is not supported by the plugin, requests for this method are usually ignored)
+- ignored plugin requests do not end up in the result `Vec`, so a [`Vade`] may have registered multiple plugins, but if only on plugin caters to a certain did method, calls related to this method will only yield a single result
 
-This, of course requires you to have an existing VC, that you can actually set, but this depends on the actual plugins used in your instance. As we use the [`RustStorageCache`] plugin in our examples here, this requirement is not a problem, as it just acts as a key-value store with out any checks around it.
+![vade_plugin_flow](https://user-images.githubusercontent.com/1394421/81380160-b0322c00-910a-11ea-8670-50455650497b_needs_to_be_updated.png)
 
-```rust
-match vade.set_vc_document("vc:example123", "{}").await {
-    Ok(()) => (),
-    Err(e) => panic!(format!("{}", e)),
-}
-```
+## Prebuilt Plugins
 
-##### Getting a VC
-
-```rust
-      let fetched = vade.get_vc_document("vc:example123").await.unwrap();
-```
-
-##### Validating VCs
-
-Note that the outcome of this function heavily depends on the used plugin. [`RustStorageCache`] for example will only accept VCs as valid, if their name is "test".
-
-```rust
-let vc_result = vade.check_vc("test", &fetched).await;
-match vc_result {
-    Ok(_) => (),
-    Err(_) => panic!("VC not valid"),
-}
-```
-
-#### DIDs
-
-##### Adding a DID
-
-If your registered plugin allows you to set DIDs you can set it with:
-
-```rust
-match vade.set_did_document("did:example123", "{}").await {
-    Ok(()) => (),
-    Err(e) => panic!(format!("{}", e)),
-}
-```
-
-##### Getting a DID
-
-```rust
-     let fetched = vade.get_did_document("did:example123").await.unwrap();
-```
-
-##### Validating DIDs
-
-Again, note that the outcome of this function heavily depends on the used plugin. [`RustStorageCache`] for example will only accept DIDs as valid, if their name is "test".
-
-```rust
-let did_result = vade.check_did("test", &fetched).await;
-match did_result {
-    Ok(_) => (),
-    Err(_) => panic!("VC not valid"),
-}
-```
-
-#### Generic Messages
-
-[`Vade`] also supports a more open type of message pipelining instead of message bound directly to VCs and DIDs. Plugins can be registered for generic messages with
-
-```rust
-async fn example() {
-    let mut vade = Vade::new();
-    let tmc = TestMessageConsumer::new();
-    vade.register_message_consumer(
-        &vec!["message1", "message2"].iter().map(|&x| String::from(x)).collect(),
-        Box::from(tmc),
-    );
-}
-```
-
-After this registered plugins will be called when related messages arrive and all registered plugins have to provide a response as `Option<String>`. All responses are collected and returned to caller, e.g.:
-
-```rust
-let parsed: Value = serde_json::from_str(responses[0].as_ref().unwrap()).unwrap();
-```
-
-Note, that input is provided as a `String` that can be parsed to [`VadeMessage`], so the properties `type` and `data` are mandatory, while `type` controls the plugins, that will receive the values of `data`. `data` is usually formatted as JSON, but can have any format, that is convenient and can be included in JSON documents.
-
-This rather open approach opens up a lot of possibilities for implementing own plugins and workflows.
-
-## Plugins
-
-Plugins are the modules that perform the actual work in the [`Vade`] module. This project already has one plugin included,  [`RustStorageCache`], which can be used as a reference for creating own plugins.
-
-### Create new Plugins
-
-Developing plugins for `vade` can be done by implementing one or more traits from [`vade::library::traits`], e.g.
-
-- [`VcResolver`]
-- [`DidResolver`]
-- [`MessageConsumer`]
-- [`Logger`] (currently unclear if this plugin will be continued, but can be used for implementation tests)
-
-An example for a simple plugin is the provided [`RustStorageCache`]. It implements [`DidResolver`] as well as [`VcResolver`] functionalities. For your implementation you can, of course, decide to implement only a single trait in a plugin.
-
-### Basic Behavior
-
-This plugin implements the following traits:
-
-- [`VcResolver`] - therefore, it can handle VC documents
-- [`DidResolver`] - therefore, it can handle DID documents
-
-This allows us to register it as these resolvers with
-
-- [`register_vc_resolver`]
-- [`register_did_resolver`]
-
-respectively.
-
-As soon as they are registered as a plugin for a certain type of operation, they are called for related operations (e.g. [`get_vc_document`]) by the [`Vade`] instance they are registered in.
-
-### Library Functions that utilize Plugins
-
-This section shows a short overview over the plugin related functions. For more details, have a look at the [`Vade`] documentation.
-
-#### Plugin registration
-
-These functions can be used to register new resolver plugins:
-
-- [`register_did_resolver`]
-- [`register_vc_resolver`]
-- [`register_message_consumer`]
-
-#### Setters
-
-These functions will call all registered plugins respectively and with given arguments (e.g. setting a DID will only call DID resolver functions, etc.):
-
-- [`set_did_document`]
-- [`set_vc_document`]
-
-If multiple plugins are registered, awaits completion of all actions. First plugin that fails lets this request fail.
-
-#### Getters
-
-These functions will call all registered plugins respectively and with given arguments (e.g. getting a DID will only call DID resolver functions, etc.):
-
-- [`get_did_document`]
-- [`get_vc_document`]
-
-If multiple plugins are registered, first **successful** response will be used. Request will fail if all plugins failed.
-
-#### Validation
-
-These functions will call all registered plugins respectively and with given arguments (e.g. getting a DID will only call DID resolver functions, etc.):
-
-- [`check_did_document`]
-- [`check_vc_document`]
-
-A document is considered valid if at least one resolver confirms its validity. Resolvers may throw to indicate:
-
-- that they are not responsible for this document
-- that they consider this document invalid
-
-The current validation flow offers only a limited way of feedback for invalidity and may undergo further changes in future.
-
-#### Generic Messages]
-
-Messaging is rather straight forward. After registering a [`MessageConsumer`] with [`register_message_consumer`] it will receive messages for all registered `type`s of messages. A [`MessageConsumer`] only hast to implement [`send_message`] to be able to consume and respond to messages from [`Vade`].
-
-### More Plugins
-
-A plugin working with VCs and DIDs on [evan.network] called [`vade-evan`] has been implemented. Its usage is equivalent to the description above, more details can be found on its project page.
+A plugin working with VCs and DIDs on [evan.network] called [`vade-evan`] has been implemented, more details can be found on its project page.
 
 You can also start writing your own plugin, by following the behavior outlined with the traits in this library.
+
+## Writing own Plugins
+
+Writing own plugin is rather simple, an example and details how to write them can be found in the [`VadePlugin`] documentation.
+
+```md
+move this stuff to VadePlugin
+
+- a [`Vade`] instance delegates **all** calls of plugin related functions to **all** registered plugins
+- those [`VadePlugin`] instances then may or may not process the request by returning a [`VadePluginResultValue`], that has the following variants
+    - [`NotImplemented`]: 
+```
 
 ## Wasm Support
 
@@ -252,26 +74,8 @@ Vade supports Wasm! ^^
 
 For an example how to use [`Vade`] in Wasm and a how to guide, have a look at our [vade-wasm-example] project.
 
-[`check_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.check_did_document
-[`check_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.check_vc_document
-[`DidResolver`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html
-[`get_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.get_did_document
-[`get_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.get_vc_document
-[`Logger`]: https://docs.rs/vade/*/vade/traits/trait.Logger.html
-[`MessageConsumer`]: https://docs.rs/vade/*/vade/traits/trait.MessageConsumer.html
-[`register_did_resolver`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_did_resolver
-[`register_message_consumer`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_message_consumer
-[`register_vc_resolver`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_did_resolver
-[`RustStorageCache`]: https://docs.rs/vade/*/vade/plugin/rust_storage_cache/struct.RustStorageCache.html
-[`RustVcResolverEvan`]: https://docs.rs/vade-evan/*/vade_evan/plugin/rust_vcresolver_evan/struct.RustVcResolverEvan.html
-[`send_message`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.send_message
-[`set_did_document`]: https://docs.rs/vade/*/vade/traits/trait.DidResolver.html#tymethod.set_did_document
-[`set_vc_document`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html#tymethod.set_vc_document
-[`vade library file`]: https://github.com/evannetwork/vade/blob/develop/src/lib.rs
+[`did_create`]: https://docs.rs/vade/*/vade/trait.VadePlugin.html#method.did_create
+[`register_plugin`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_plugin
 [`vade-evan`]: https://docs.rs/vade-evan
-[`vade::library::traits`]: https://docs.rs/vade/*/vade/traits/index.html
-[`Vade`]: https://docs.rs/vade//vade/struct.Vade.html
-[`VadeMessage`]: https://docs.rs/vade/*/vade/struct.VadeMessage.html
-[`VcResolver`]: https://docs.rs/vade/*/vade/traits/trait.VcResolver.html
-[evan.network]: https://evan.network
-[vade-wasm-example]: https://github.com/evannetwork/vade-wasm-example
+[`Vade`]: https://docs.rs/vade/*/vade/struct.Vade.html
+[`VadePlugin`]: https://docs.rs/vade/*/vade/trait.VadePlugin.html

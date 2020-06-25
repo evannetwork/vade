@@ -14,8 +14,6 @@
   limitations under the License.
 */
 
-extern crate vade;
-
 use vade::Vade;
 
 #[test]
