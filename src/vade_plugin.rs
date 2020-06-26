@@ -148,7 +148,9 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    /// Creates a new zero-knowledge proof credential definition.
+    /// Creates a new zero-knowledge proof credential definition. A credential definition holds cryptographic key mateiral
+    /// and is needed by an issuer to issue a credential, thus needs to be created before issuance. A credential definition
+    /// depends on a credential schema.
     ///
     /// # Arguments
     ///
@@ -181,7 +183,7 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    /// Creates a new zero-knowledge proof credential offer.
+    /// Creates a new zero-knowledge proof credential offer. This message is the first in a credential issuance process.
     ///
     /// # Arguments
     ///
