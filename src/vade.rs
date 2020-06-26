@@ -110,7 +110,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("did_create");
+        self.log_fun_enter("did_create", &did_method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.did_create(did_method, options, payload));
@@ -124,7 +124,7 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("did_create", filtered_results.len());
+                self.log_fun_leave("did_create", filtered_results.len(), &did_method);
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -158,7 +158,7 @@ impl Vade {
         &mut self,
         did: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("did_resolve");
+        self.log_fun_enter("did_resolve", &did);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.did_resolve(did));
@@ -171,7 +171,7 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("did_resolve", filtered_results.len());
+                self.log_fun_leave("did_resolve", filtered_results.len(), &did);
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -209,7 +209,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("did_update");
+        self.log_fun_enter("did_update", &did);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.did_update(did, options, payload));
@@ -222,7 +222,7 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("did_update", filtered_results.len());
+                self.log_fun_leave("did_update", filtered_results.len(), &did);
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -290,7 +290,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_create_credential_definition");
+        self.log_fun_enter("vc_zkp_create_credential_definition", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_create_credential_definition(method, options, payload));
@@ -306,6 +306,7 @@ impl Vade {
                 self.log_fun_leave(
                     "vc_zkp_create_credential_definition",
                     filtered_results.len(),
+                    &method,
                 );
                 Ok(filtered_results)
             }
@@ -344,7 +345,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_create_credential_offer");
+        self.log_fun_enter("vc_zkp_create_credential_offer", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_create_credential_offer(method, options, payload));
@@ -357,7 +358,11 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_create_credential_offer", filtered_results.len());
+                self.log_fun_leave(
+                    "vc_zkp_create_credential_offer",
+                    filtered_results.len(),
+                    &method,
+                );
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -395,7 +400,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_create_credential_proposal");
+        self.log_fun_enter("vc_zkp_create_credential_proposal", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_create_credential_proposal(method, options, payload));
@@ -408,7 +413,11 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_create_credential_proposal", filtered_results.len());
+                self.log_fun_leave(
+                    "vc_zkp_create_credential_proposal",
+                    filtered_results.len(),
+                    &method,
+                );
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -446,7 +455,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_create_credential_schema");
+        self.log_fun_enter("vc_zkp_create_credential_schema", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_create_credential_schema(method, options, payload));
@@ -459,7 +468,11 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_create_credential_schema", filtered_results.len());
+                self.log_fun_leave(
+                    "vc_zkp_create_credential_schema",
+                    filtered_results.len(),
+                    &method,
+                );
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -497,7 +510,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_create_revocation_registry_definition");
+        self.log_fun_enter("vc_zkp_create_revocation_registry_definition", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(
@@ -515,6 +528,7 @@ impl Vade {
                 self.log_fun_leave(
                     "vc_zkp_create_revocation_registry_definition",
                     filtered_results.len(),
+                    &method,
                 );
                 Ok(filtered_results)
             }
@@ -553,7 +567,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_update_revocation_registry");
+        self.log_fun_enter("vc_zkp_update_revocation_registry", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_update_revocation_registry(method, options, payload));
@@ -566,7 +580,11 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_update_revocation_registry", filtered_results.len());
+                self.log_fun_leave(
+                    "vc_zkp_update_revocation_registry",
+                    filtered_results.len(),
+                    &method,
+                );
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -604,7 +622,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_issue_credential");
+        self.log_fun_enter("vc_zkp_issue_credential", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_issue_credential(method, options, payload));
@@ -617,7 +635,7 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_issue_credential", filtered_results.len());
+                self.log_fun_leave("vc_zkp_issue_credential", filtered_results.len(), &method);
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -655,7 +673,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_present_proof");
+        self.log_fun_enter("vc_zkp_present_proof", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_present_proof(method, options, payload));
@@ -668,7 +686,7 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_present_proof", filtered_results.len());
+                self.log_fun_leave("vc_zkp_present_proof", filtered_results.len(), &method);
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -706,7 +724,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_request_credential");
+        self.log_fun_enter("vc_zkp_request_credential", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_request_credential(method, options, payload));
@@ -719,7 +737,7 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_request_credential", filtered_results.len());
+                self.log_fun_leave("vc_zkp_request_credential", filtered_results.len(), &method);
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -757,7 +775,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_request_proof");
+        self.log_fun_enter("vc_zkp_request_proof", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_request_proof(method, options, payload));
@@ -770,7 +788,7 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_request_proof", filtered_results.len());
+                self.log_fun_leave("vc_zkp_request_proof", filtered_results.len(), &method);
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -808,7 +826,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_revoke_credential");
+        self.log_fun_enter("vc_zkp_revoke_credential", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_revoke_credential(method, options, payload));
@@ -821,7 +839,7 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_revoke_credential", filtered_results.len());
+                self.log_fun_leave("vc_zkp_revoke_credential", filtered_results.len(), &method);
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -859,7 +877,7 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_verify_proof");
+        self.log_fun_enter("vc_zkp_verify_proof", &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_verify_proof(method, options, payload));
@@ -872,7 +890,7 @@ impl Vade {
                         filtered_results.push(value);
                     }
                 }
-                self.log_fun_leave("vc_zkp_verify_proof", filtered_results.len());
+                self.log_fun_leave("vc_zkp_verify_proof", filtered_results.len(), &method);
                 Ok(filtered_results)
             }
             Err(e) => Err(Box::from(format!(
@@ -887,11 +905,12 @@ impl Vade {
     /// # Arguments
     ///
     /// * `name` - name of called function
-    fn log_fun_enter(&mut self, name: &str) {
+    fn log_fun_enter(&mut self, name: &str, method_or_id: &str) {
         debug!(
-            r#"delegating function "{}" to {} plugins"#,
+            r#"delegating function "{}" to {} plugins with method/id "{}""#,
             &name,
-            self.plugins.len()
+            self.plugins.len(),
+            method_or_id,
         );
     }
 
@@ -901,12 +920,13 @@ impl Vade {
     ///
     /// * `name` - name of called function
     /// * `response_count` - number of `VadePluginResultValue::Success(T)` responses
-    fn log_fun_leave(&mut self, name: &str, response_count: usize) {
+    fn log_fun_leave(&mut self, name: &str, response_count: usize, method_or_id: &str) {
         debug!(
-            r#"function "{}" of {} plugins yielded {} results"#,
+            r#"function "{}" of {} plugins yielded {} results for method/id "{}""#,
             &name,
             self.plugins.len(),
             &response_count,
+            method_or_id,
         );
     }
 }
