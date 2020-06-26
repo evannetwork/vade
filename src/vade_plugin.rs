@@ -36,14 +36,16 @@ impl<T> VadePluginResultValue<T> {
     /// - `Success(T)` unwraps successfully to `T`
     /// - NotImplemented unwraps to an error
     /// - Ignored unwraps to an error
-    /// ``` 
+    /// ```
     pub fn unwrap(self) -> T {
         match self {
             VadePluginResultValue::Success(val) => val,
-            VadePluginResultValue::NotImplemented =>
-                panic!("called `VadePluginResultValue::unwrap()` on a `NotImplemented` value"),
-            VadePluginResultValue::Ignored =>
-                panic!("called `VadePluginResultValue::unwrap()` on a `Ignored` value"),
+            VadePluginResultValue::NotImplemented => {
+                panic!("called `VadePluginResultValue::unwrap()` on a `NotImplemented` value")
+            }
+            VadePluginResultValue::Ignored => {
+                panic!("called `VadePluginResultValue::unwrap()` on a `Ignored` value")
+            }
         }
     }
 }
@@ -60,7 +62,7 @@ pub trait VadePlugin {
     /// * `payload` - JSON string with information for the request (e.g. actual data to write)
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use vade::{VadePlugin, VadePluginResultValue};
     /// // use some_crate:ExamplePlugin;
@@ -91,7 +93,7 @@ pub trait VadePlugin {
     /// * `did` - did to fetch data for
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use vade::{VadePlugin, VadePluginResultValue};
     /// // use some_crate:ExamplePlugin;
@@ -145,7 +147,7 @@ pub trait VadePlugin {
     ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
         Ok(VadePluginResultValue::NotImplemented)
     }
-    
+
     /// Creates a new zero-knowledge proof credential definition.
     ///
     /// # Arguments
@@ -155,7 +157,7 @@ pub trait VadePlugin {
     /// * `payload` - JSON string with information for the request (e.g. actual data to write)
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use vade::{VadePlugin, VadePluginResultValue};
     /// // use some_crate:ExamplePlugin;
@@ -253,7 +255,7 @@ pub trait VadePlugin {
     /// * `payload` - JSON string with information for the request (e.g. actual data to write)
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use vade::{VadePlugin, VadePluginResultValue};
     /// // use some_crate:ExamplePlugin;
@@ -286,7 +288,7 @@ pub trait VadePlugin {
     /// * `payload` - JSON string with information for the request (e.g. actual data to write)
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use vade::{VadePlugin, VadePluginResultValue};
     /// // use some_crate:ExamplePlugin;
@@ -319,7 +321,7 @@ pub trait VadePlugin {
     /// * `payload` - JSON string with information for the request (e.g. actual data to write)
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use vade::{VadePlugin, VadePluginResultValue};
     /// // use some_crate:ExamplePlugin;
@@ -352,7 +354,7 @@ pub trait VadePlugin {
     /// * `payload` - JSON string with information for the request (e.g. actual data to write)
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use vade::{VadePlugin, VadePluginResultValue};
     /// // use some_crate:ExamplePlugin;
@@ -385,7 +387,7 @@ pub trait VadePlugin {
     /// * `payload` - JSON string with information for the request (e.g. actual data to write)
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use vade::{VadePlugin, VadePluginResultValue};
     /// // use some_crate:ExamplePlugin;

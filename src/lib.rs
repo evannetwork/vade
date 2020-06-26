@@ -75,7 +75,7 @@
 //!
 //! - a [`Vade`] instance delegates **all** calls of plugin related functions to **all** registered plugins
 //! - those [`VadePlugin`] instances then may or may not process the request by returning a [`VadePluginResultValue`], that has the following variants
-//!     - [`NotImplemented`]: 
+//!     - [`NotImplemented`]:
 //! ```
 //!
 //! ## Wasm Support

@@ -40,7 +40,7 @@ use futures::future::try_join_all;
 ///     - [`vc_zkp_request_proof`]
 ///     - [`vc_zkp_present_proof`]
 ///     - [`vc_zkp_verify_proof`]
-/// 
+///
 /// Except for the management functions all functions will be delegated to plugins. Plugins handling follows the following rules:
 ///
 /// - a [`Vade`] instance delegates **all** calls of plugin related functions to **all** registered plugins
@@ -91,7 +91,7 @@ impl Vade {
     /// * `payload` - JSON string with information for the request (e.g. actual data to write)
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use vade::Vade;
     /// async fn example() {
@@ -141,7 +141,7 @@ impl Vade {
     /// * `did` - did to fetch data for
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use vade::Vade;
     /// async fn example() {
@@ -894,7 +894,6 @@ impl Vade {
             self.plugins.len()
         );
     }
-
 
     /// Writes a debug message when leaving a plugin function.
     ///
