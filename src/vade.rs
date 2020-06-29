@@ -18,54 +18,6 @@ use crate::{VadePlugin, VadePluginResultValue};
 use futures::future::try_join_all;
 
 /// A [`Vade`] instance is your single point of contact for interacting with DIDs and VCs.
-///
-/// The current set of functions can be grouped into 3 clusters:
-///
-/// - management functions:
-///     - [`register_plugin`]
-/// - did interaction:
-///     - [`did_create`]
-///     - [`did_resolve`]
-///     - [`did_update`]
-/// - zero knowledge proof vc interaction:
-///     - [`vc_zkp_create_credential_schema`]
-///     - [`vc_zkp_create_credential_definition`]
-///     - [`vc_zkp_create_credential_proposal`]
-///     - [`vc_zkp_create_credential_offer`]
-///     - [`vc_zkp_request_credential`]
-///     - [`vc_zkp_create_revocation_registry_definition`]
-///     - [`vc_zkp_update_revocation_registry`]
-///     - [`vc_zkp_issue_credential`]
-///     - [`vc_zkp_revoke_credential`]
-///     - [`vc_zkp_request_proof`]
-///     - [`vc_zkp_present_proof`]
-///     - [`vc_zkp_verify_proof`]
-///
-/// Except for the management functions all functions will be delegated to plugins. Plugins handling follows the following rules:
-///
-/// - a [`Vade`] instance delegates **all** calls of plugin related functions to **all** registered plugins
-/// - those [`VadePlugin`] instances then may or may not process the request
-/// - requests may be ignored due to not being implemented or due to ignoring them due to plugin internal logic (e.g. if a did method is not supported by the plugin, requests for this method are usually ignored)
-/// - ignored plugin requests do not end up in the result `Vec`, so a [`Vade`] may have registered multiple plugins, but if only on plugin caters to a certain did method, calls related to this method will only yield a single result
-///
-/// [`did_create`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.did_create
-/// [`did_resolve`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.did_resolve
-/// [`did_update`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.did_update
-/// [`register_plugin`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_plugin
-/// [`Vade`]: https://docs.rs/vade/*/vade/struct.Vade.html
-/// [`VadePlugin`]: https://docs.rs/vade/*/vade/struct.VadePlugin.html
-/// [`vc_zkp_create_credential_definition`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_create_credential_definition
-/// [`vc_zkp_create_credential_offer`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_create_credential_offer
-/// [`vc_zkp_create_credential_proposal`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_create_credential_proposal
-/// [`vc_zkp_create_credential_schema`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_create_credential_schema
-/// [`vc_zkp_create_revocation_registry_definition`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_create_revocation_registry_definition
-/// [`vc_zkp_issue_credential`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_issue_credential
-/// [`vc_zkp_present_proof`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_present_proof
-/// [`vc_zkp_request_credential`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_request_credential
-/// [`vc_zkp_request_proof`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_request_proof
-/// [`vc_zkp_revoke_credential`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_revoke_credential
-/// [`vc_zkp_update_revocation_registry`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_update_revocation_registry
-/// [`vc_zkp_verify_proof`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_verify_proof
 
 pub struct Vade {
     /// registered plugins
