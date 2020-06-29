@@ -66,6 +66,7 @@ use futures::future::try_join_all;
 /// [`vc_zkp_revoke_credential`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_revoke_credential
 /// [`vc_zkp_update_revocation_registry`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_update_revocation_registry
 /// [`vc_zkp_verify_proof`]: https://docs.rs/vade/*/vade/struct.Vade.html#vc_zkp_verify_proof
+
 pub struct Vade {
     /// registered plugins
     pub plugins: Vec<Box<dyn VadePlugin>>,

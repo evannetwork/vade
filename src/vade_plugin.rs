@@ -18,25 +18,29 @@ use async_trait::async_trait;
 
 /// Wrapper enum for a plugins return value
 pub enum VadePluginResultValue<T> {
-    /// Plugin does not implement this function, this is returned by default as the
+    /// Plugin does not implement this function. This is returned by default as the
     /// [`VadePlugin`](https://docs.rs/vade/*/vade/trait.VadePlugin.html)
     /// trait offers a default implementation for every function (which returns `NotImplemented`).
+    /// So if a function is not explicitly implemented by a plugin itself, a call to this function
+    /// will return `NotImplemented`.
     NotImplemented,
     /// Plugin implements function but is not "interested" in fulfilling function call.
     /// This mostly signs that the responding plugin does not resolve/handle given method,
     /// e.g. a plugin may resolve dids with prefix `did:example123` and not dids with
     /// prefix `did:example456`.
     Ignored,
-    /// Plugin handled request and returned a value of type `T`.
+    /// Plugin handled request and returned a value of type `T`. Not that `Success` values can be
+    /// unwrapped. So if you know, that a plugin implements a function and handles requests of your
+    /// method, you can call
+    /// [`unwrap`](https://docs.rs/vade/*/vade/enum.VadePluginResultValue.html#method.unwrap) on it
+    /// to fetch the underlying value of type `T`.
     Success(T),
 }
 
 impl<T> VadePluginResultValue<T> {
     /// Unwraps inner value like:
     /// - `Success(T)` unwraps successfully to `T`
-    /// - NotImplemented unwraps to an error
-    /// - Ignored unwraps to an error
-    /// ```
+    /// - `NotImplemented` and `Ignored` unwrap to errors
     pub fn unwrap(self) -> T {
         match self {
             VadePluginResultValue::Success(val) => val,
@@ -49,6 +53,97 @@ impl<T> VadePluginResultValue<T> {
         }
     }
 }
+
+/// ## About
+///
+/// The plugins are the bread and butter of the underlying [`Vade`] logic. [`Vade`] is your single
+/// point of contact in your application and all your calls are executed against it. [`Vade`] itself
+/// manages the plugins, delegates calls to them and filters the results. The actual logic
+/// concerning specific DID methods resides in the plugins and they are responsible for implementing
+/// argument handling, resolving DIDs, etc.
+///
+/// ## Call delegation
+///
+/// All functions of the [`VadePlugin`] trait have a counterpart with the same name but a slightly
+/// different signature in [`Vade`] that will delegate calls to the plugins' functions with the same
+/// name. While the plugin returns a `VadePluginResultValue<T>`result, [`Vade`] will return
+/// a `Vec<T>` result. [`Vade`]'s result is the list of all results from all plugins that did
+/// implement the called function and did not ignore the request.
+/// 
+/// For example [`did_create`](https://docs.rs/vade/*/vade/struct.Vade.html#method.did_create)
+/// / [`did_create`](https://docs.rs/vade/*/vade/trait.VadePlugin.html#method.did_create):
+///
+/// [`Vade`]'s function:
+/// 
+/// ```ignored
+/// pub async fn did_create(
+///     &mut self,
+///     did_method: &str,
+///     options: &str,
+///     payload: &str,
+///     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+///     // ...
+/// }
+/// ```
+/// 
+/// Will call all [`VadePlugin`]s' functions:
+///
+/// ```ignored
+/// pub async fn did_create(
+///     &mut self,
+///     did_method: &str,
+///     options: &str,
+///     payload: &str,
+/// ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+///     // ...
+/// }
+/// ```
+/// 
+/// ## Result Values of Plugins
+/// 
+/// Plugins return results with the type [`VadePluginResultValue`], which has 3 Variants:
+///
+/// - [`NotImplemented`], for functions not implemented in a plugin
+/// - [`Ignored`], for functions implemented in a plugin but ignore the request (e.g. due to an unknown method)
+/// - [`Success`], for successful requests' results
+///
+/// ## Example
+///
+/// A simple plugin could look like this:
+/// 
+/// ```rust
+/// use async_trait::async_trait;
+/// use vade::{VadePlugin, VadePluginResultValue};
+///
+/// struct ExamplePlugin { }
+///
+/// impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+///
+/// #[async_trait(?Send)]
+/// impl VadePlugin for ExamplePlugin {
+///     async fn did_create(
+///         &mut self,
+///         _did_method: &str,
+///         _options: &str,
+///         _payload: &str,
+///     ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+///         Ok(VadePluginResultValue::Success(Some(
+///             r#"{ "id": "did:example123:456" }"#.to_string(),
+///         )))
+///     }
+/// }
+/// ```
+///
+/// There is no need to implement all [`VadePlugin`] functions, unimplemented functions will be
+/// ignored. Also make sure to return [`Ignored`], your function is not responsible for a given
+/// did or method.
+///
+/// [`Ignored`]: https://docs.rs/vade/*/vade/enum.VadePluginResultValue.html#variant.Ignored
+/// [`NotImplemented`]: https://docs.rs/vade/*/vade/enum.VadePluginResultValue.html#variant.NotImplemented
+/// [`Success`]: https://docs.rs/vade/*/vade/enum.VadePluginResultValue.html#variant.Success
+/// [`Vade`]: https://docs.rs/vade/*/vade/struct.Vade.html
+/// [`VadePlugin`]: https://docs.rs/vade/*/vade/trait.VadePlugin.html
+/// [`VadePluginResultValue`]: https://docs.rs/vade/*/vade/enum.VadePluginResultValue.html
 
 #[async_trait(?Send)]
 #[allow(unused_variables)] // to keep proper names for documentation and derived implementations
