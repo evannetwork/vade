@@ -4,9 +4,19 @@
 
 ### Features
 
+- add `VadePlugin` trait
+- add `VadePluginResultValue` enum
+- update `Vade` to be able to work with `VadePlugins`
+
 ### Fixes
 
 ### Deprecations
+
+- remove `DidResolver`, `Logger`, `VcResolver`, `MessageHandler`
+  - traits
+  - `Vade` functions that use them
+  - tests related to them
+- remove `RustStorageCache` example implementation and tests
 
 ## Version 0.0.6
 
