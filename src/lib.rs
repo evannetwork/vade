@@ -20,7 +20,7 @@
 //!
 //! This library is currently under development. Behavior, as well as provided exports, will most probably change over time.
 //!
-//! Documentation about [`Vade`]s functions and it's meaning can be found [`here`](https://docs.rs/vade/*/vade/struct.Vade.html)
+//! Documentation about [`Vade`]s functions and their meaning can be found [`here`](https://docs.rs/vade/*/vade/struct.Vade.html)
 //!
 //! ## Example Usage
 //!
@@ -60,23 +60,11 @@
 //! - requests may be ignored due to not being implemented or due to ignoring them due to plugin internal logic (e.g. if a did method is not supported by the plugin, requests for this method are usually ignored)
 //! - ignored plugin requests do not end up in the result `Vec`, so a [`Vade`] may have registered multiple plugins, but if only on plugin caters to a certain did method, calls related to this method will only yield a single result
 //!
-//! ![vade_plugin_flow](https://user-images.githubusercontent.com/1394421/81380160-b0322c00-910a-11ea-8670-50455650497b_needs_to_be_updated.png)
-//!
-//! ## Prebuilt Plugins
-//!
-//! A plugin working with VCs and DIDs on [evan.network] called [`vade-evan`] has been implemented, more details can be found on its project page.
+//! ![vade_plugin_flow](https://user-images.githubusercontent.com/1394421/85983296-8f3dd700-b9e7-11ea-92ee-47e8c441e576.png)
 //!
 //! ## Writing own Plugins
 //!
 //! Writing own plugin is rather simple, an example and details how to write them can be found in the [`VadePlugin`] documentation.
-//!
-//! ```md
-//! move this stuff to VadePlugin
-//!
-//! - a [`Vade`] instance delegates **all** calls of plugin related functions to **all** registered plugins
-//! - those [`VadePlugin`] instances then may or may not process the request by returning a [`VadePluginResultValue`], that has the following variants
-//!     - [`NotImplemented`]:
-//! ```
 //!
 //! ## Wasm Support
 //!

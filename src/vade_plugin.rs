@@ -144,6 +144,7 @@ impl<T> VadePluginResultValue<T> {
 /// [`Vade`]: https://docs.rs/vade/*/vade/struct.Vade.html
 /// [`VadePlugin`]: https://docs.rs/vade/*/vade/trait.VadePlugin.html
 /// [`VadePluginResultValue`]: https://docs.rs/vade/*/vade/enum.VadePluginResultValue.html
+
 #[async_trait(?Send)]
 #[allow(unused_variables)] // to keep proper names for documentation and derived implementations
 pub trait VadePlugin {
