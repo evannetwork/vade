@@ -29,7 +29,7 @@ pub enum VadePluginResultValue<T> {
     /// e.g. a plugin may resolve dids with prefix `did:example123` and not dids with
     /// prefix `did:example456`.
     Ignored,
-    /// Plugin handled request and returned a value of type `T`. Not that `Success` values can be
+    /// Plugin handled request and returned a value of type `T`. Note that `Success` values can be
     /// unwrapped. So if you know, that a plugin implements a function and handles requests of your
     /// method, you can call
     /// [`unwrap`](https://docs.rs/vade/*/vade/enum.VadePluginResultValue.html#method.unwrap) on it
@@ -181,7 +181,7 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    /// Fetch data about a DID from. This usually returns a DID document
+    /// Fetch data about a DID. This usually returns a DID document.
     ///
     /// # Arguments
     ///
@@ -210,11 +210,11 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    /// Updates data related to new DID. May also persist a DID document for it, depending on plugin implementation.
+    /// Updates data related to a DID. May also persist a DID document for it, depending on plugin implementation.
     ///
     /// # Arguments
     ///
-    /// * `did` - did to update data for
+    /// * `did` - DID to update data for
     /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
     /// * `payload` - JSON string with information for the request (e.g. actual data to write)
     ///
@@ -243,7 +243,7 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    /// Creates a new zero-knowledge proof credential definition. A credential definition holds cryptographic key mateiral
+    /// Creates a new zero-knowledge proof credential definition. A credential definition holds cryptographic key material
     /// and is needed by an issuer to issue a credential, thus needs to be created before issuance. A credential definition
     /// is always bound to one credential schema.
     ///

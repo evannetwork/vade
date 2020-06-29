@@ -49,8 +49,8 @@
 //!
 //! As you can see, an instance of `ExamplePlugin` is created and handed over to a [`Vade`] instance with [`register_plugin`]. To be a valid argument for this, `ExamplePlugin` needs to implement [`VadePlugin`].
 //!
-//! [`Vade`] then delegates the call of [`did_create`] and *all* other functions with the same name as the functions of [`VadePlugin`] to *all* registered plugins, so the result of such calls is a `Vec` of optional `String` values (`Vec<Option<String>>`).
-//!
+//! [`Vade`] delegates the call *all* functions with the same name as the functions of [`VadePlugin`] to *all* registered plugins, so the result of such calls is a `Vec` of optional `String` values (`Vec<Option<String>>`).
+//! 
 //! ## Basic Plugin Flow
 //!
 //! Calls of plugin related functions follow the rule set described here:

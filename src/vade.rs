@@ -135,7 +135,7 @@ impl Vade {
         }
     }
 
-    /// Fetch data about a DID from. This usually returns a DID document
+    /// Fetch data about a DID. This usually returns a DID document.
     ///
     /// # Arguments
     ///
@@ -182,11 +182,11 @@ impl Vade {
         }
     }
 
-    /// Updates data related to new DID. May also persist a DID document for it, depending on plugin implementation.
+    /// Updates data related to a DID. May also persist a DID document for it, depending on plugin implementation.
     ///
     /// # Arguments
     ///
-    /// * `did` - did to update data for
+    /// * `did` - DID to update data for
     /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
     /// * `payload` - JSON string with information for the request (e.g. actual data to write)
     ///
@@ -263,7 +263,7 @@ impl Vade {
         self.plugins.push(plugin);
     }
 
-    /// Creates a new zero-knowledge proof credential definition. A credential definition holds cryptographic key mateiral
+    /// Creates a new zero-knowledge proof credential definition. A credential definition holds cryptographic key material
     /// and is needed by an issuer to issue a credential, thus needs to be created before issuance. A credential definition
     /// is always bound to one credential schema.
     ///
