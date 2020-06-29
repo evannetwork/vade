@@ -92,7 +92,7 @@ The current set of features can be grouped into 3 clusters:
 
 Registers a new plugin. See [`VadePlugin`](https://docs.rs/vade/*/vade/struct.VadePlugin.html) for details about how they work.
 
-### DID Interaction:
+### DID Interaction
 
 **[`did_create`]**
 

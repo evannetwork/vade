@@ -100,7 +100,7 @@
 //! 
 //! Registers a new plugin. See [`VadePlugin`](https://docs.rs/vade/*/vade/struct.VadePlugin.html) for details about how they work.
 //! 
-//! ### DID Interaction:
+//! ### DID Interaction
 //! 
 //! **[`did_create`]**
 //!
