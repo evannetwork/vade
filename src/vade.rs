@@ -262,7 +262,9 @@ impl Vade {
         self.plugins.push(plugin);
     }
 
-    /// Creates a new zero-knowledge proof credential definition.
+    /// Creates a new zero-knowledge proof credential definition. A credential definition holds cryptographic key mateiral
+    /// and is needed by an issuer to issue a credential, thus needs to be created before issuance. A credential definition
+    /// is always bound to one credential schema.
     ///
     /// # Arguments
     ///
@@ -317,7 +319,7 @@ impl Vade {
         }
     }
 
-    /// Creates a new zero-knowledge proof credential offer.
+    /// Creates a new zero-knowledge proof credential offer. This message is the response to a credential proposal.
     ///
     /// # Arguments
     ///
@@ -372,7 +374,8 @@ impl Vade {
         }
     }
 
-    /// Creates a new zero-knowledge proof credential proposal.
+    /// Creates a new zero-knowledge proof credential proposal. This message is the first in the
+    /// credential issuance flow.
     ///
     /// # Arguments
     ///
@@ -427,7 +430,8 @@ impl Vade {
         }
     }
 
-    /// Creates a new zero-knowledge proof credential schema.
+    /// Creates a new zero-knowledge proof credential schema. The schema specifies properties a credential
+    /// includes, both optional and mandatory.
     ///
     /// # Arguments
     ///
@@ -482,7 +486,9 @@ impl Vade {
         }
     }
 
-    /// Creates a new definition for a zero-knowledge proof revocation registry.
+    /// Creates a new revocation registry definition. The definition consists of a public and a private part.
+    /// The public part holds the cryptographic material needed to create non-revocation proofs. The private part
+    /// needs to reside with the registry owner and is used to revoke credentials.
     ///
     /// # Arguments
     ///
@@ -539,7 +545,8 @@ impl Vade {
         }
     }
 
-    /// Updates a revocation registry for a zero-knowledge proof.
+    /// Updates a revocation registry for a zero-knowledge proof. This step is necessary after revocation one or
+    /// more credentials.
     ///
     /// # Arguments
     ///
@@ -594,7 +601,8 @@ impl Vade {
         }
     }
 
-    /// Issues a credential for a zero-knowledge proof.
+    /// Issues a new credential. This requires an issued schema, credential definition, an active revocation
+    /// registry and a credential request message.
     ///
     /// # Arguments
     ///
@@ -645,7 +653,8 @@ impl Vade {
         }
     }
 
-    /// Presents a proof for a zero-knowledge proof credential.
+    /// Presents a proof for a zero-knowledge proof credential. A proof presentation is the response to a
+    /// proof request.
     ///
     /// # Arguments
     ///
@@ -696,7 +705,7 @@ impl Vade {
         }
     }
 
-    /// Requests a credential for a zero-knowledge proof.
+    /// Requests a credential. This message is the response to a credential offering.
     ///
     /// # Arguments
     ///
@@ -747,7 +756,7 @@ impl Vade {
         }
     }
 
-    /// Requests a proof for a zero-knowledge proof.
+    /// Requests a zero-knowledge proof for one or more credentials issued under one or more specific schemas.
     ///
     /// # Arguments
     ///
@@ -798,7 +807,8 @@ impl Vade {
         }
     }
 
-    /// Revokes a credential for a zero-knowledge proof.
+    /// Revokes a credential. After revocation the published revocation registry needs to be updated with information
+    /// returned by this function.
     ///
     /// # Arguments
     ///
@@ -849,7 +859,7 @@ impl Vade {
         }
     }
 
-    /// Verifies a proof for a zero-knowledge proof.
+    /// Verifies a one or multiple proofs sent in a proof presentation.
     ///
     /// # Arguments
     ///
