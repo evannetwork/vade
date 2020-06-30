@@ -33,7 +33,7 @@
 //! 
 //! | Method   | Status | Crate |
 //! | -------- | ------ | ----- |
-//! | did-evan | 0.0.1  | [vade-tnt](https://crates.io/crates/vade-tnt) |
+//! | did-evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
 //! | (universal resolver method list) | in development  | - |
 //!
 //! More coming soon. To write your own plugins, have a look at [writing own plugins].
@@ -42,7 +42,7 @@
 //! 
 //! | Method   | Status | Crate |
 //! | -------- | ------ | ----- |
-//! | did-evan | 0.0.1  | [vade-tnt](https://crates.io/crates/vade-tnt) |
+//! | did-evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
 //!
 //! More coming soon. To write your own plugins, have a look at [writing own plugins].
 //! 

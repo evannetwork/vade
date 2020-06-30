@@ -4,11 +4,17 @@
 
 ### Features
 
+### Fixes
+
+### Deprecations
+
+## Version 0.0.7
+
+### Features
+
 - add `VadePlugin` trait
 - add `VadePluginResultValue` enum
 - update `Vade` to be able to work with `VadePlugins`
-
-### Fixes
 
 ### Deprecations
 
