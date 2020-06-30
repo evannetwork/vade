@@ -6,216 +6,204 @@
 
 ## About
 
-This library is intended to be used as a core library for developing own self-sovereign identity based applications.
+[`Vade`] is a framework for working with VCs and DIDs from different providers and on different platforms in a constant manner.
+Even if the actual implementation and logic behind them may change, [`Vade`] offers a consistent interface to work with them.
+It has been developed with [wasm support] in mind to allow it not only to run on servers but also on different clients
+with limited resources like IoT devices.
 
-So why the name? "Vade" is an acronym for "VC and DID engine". It focuses on working with VCs and DIDs but does not hold much logic concerning their structure. Confused? Guessed as much, so what this library actually does is:
+The name "Vade" is an acronym for "VC and DID engine" and focuses on working with VCs and DIDs. It has been designed with the idea of offering a consistent interface to work with while supporting to move the actual work into plugins.
 
-- offering traits that define how actual implementations (aka "plugins") for working with VCs and DIDs should behave
-- storing those plugins in a [`Vade`] instance
-- querying against all registered plugins for certain actions (e.g. for getting VCs/DIDs)
+This library is currently under development. Behavior, as well as provided exports, may change over time.
 
-It has been designed with the idea of offering a consistent interface to work with while supporting to move the actual work into plugins, which also helps to reduce the dependencies.
-
-This library is currently under development. Behavior, as well as provided traits, will most probably change over time.
-
-## Basic Flow
-
-When a [`Vade`] instance and its plugins have been set up (see next section), it will delegate calls to its plugins.
-
-For example when fetching a VC document with a [`Vade`] instance with two plugins (a [`RustStorageCache`] and a [`RustVcResolverEvan`]) the flow looks like this:
-
-![vade_plugin_flow](https://user-images.githubusercontent.com/1394421/81380160-b0322c00-910a-11ea-8670-50455650497b.png)
-
-## Usage
-
-### Basic Usage
-
-First add `vade` as a dependency to your `Cargo.toml`. Then you can create new instances in your code (taken from our tests):
-
-```rust
-extern crate vade;
-
-use vade::Vade;
-
-#[test]
-fn library_can_be_created() {
-    let _vade = Vade::new();
-}
-```
-
-Okay, that did not do much yet. The core library also offers a simple in-memory cache, called [`RustStorageCache`], which can be used when working with VC and DID documents, that are available offline and should just be stored and/or retrieved locally. So to use [`RustStorageCache`] as a [`VcResolver`], we just need to add it as a [`VcResolver`] plugin:
-
-```rust
-extern crate vade;
-
-use vade::Vade;
-use vade::traits::VcResolver;
-use vade::plugin::rust_storage_cache::RustStorageCache;
-
-
-#[tokio::test]
-async fn example() {
-    let mut vade = Vade::new();
-    let storage = RustStorageCache::new();
-    vade.register_vc_resolver(Box::from(storage));
-
-    match vade.set_vc_document("vc:example123", "{}").await {
-        Ok(()) => (),
-        Err(e) => panic!(format!("{}", e)),
-    }
-    let fetched = vade.get_vc_document("vc:example123").await.unwrap();
-    assert!(fetched == "{}");
-}
-```
-
-Keep in mind, that the [`RustStorageCache`] resolver can be considered a reference implementation about how resolvers may behave and that it does not validate integrity and validity of given documents. For features like these, you can implement your own resolvers by following the respective traits.
-
-### Examples
-
-In the examples here initialization is omitted to keep the readability up. If you want to see the full flow code, you can have a look at the beginning of the [`vade library file`].
-
-#### VCs
-
-##### Adding a VC
-
-This, of course requires you to have an existing VC, that you can actually set, but this depends on the actual plugins used in your instance. As we use the [`RustStorageCache`] plugin in our examples here, this requirement is not a problem, as it just acts as a key-value store with out any checks around it.
-
-```rust
-match vade.set_vc_document("vc:example123", "{}").await {
-    Ok(()) => (),
-    Err(e) => panic!(format!("{}", e)),
-}
-```
-
-##### Getting a VC
-
-```rust
-      let fetched = vade.get_vc_document("vc:example123").await.unwrap();
-```
-
-##### Validating VCs
-
-Note that the outcome of this function heavily depends on the used plugin. [`RustStorageCache`] for example will only accept VCs as valid, if their name is "test".
-
-```rust
-let vc_result = vade.check_vc("test", &fetched).await;
-match vc_result {
-    Ok(_) => (),
-    Err(_) => panic!("VC not valid"),
-}
-```
-
-
-#### DIDs
-
-##### Adding a DID
-
-If your registered plugin allows you to set DIDs you can set it with:
-
-```rust
-match vade.set_did_document("did:example123", "{}").await {
-    Ok(()) => (),
-    Err(e) => panic!(format!("{}", e)),
-}
-```
-
-##### Getting a DID
-
-```rust
-     let fetched = vade.get_did_document("did:example123").await.unwrap();
-```
-
-##### Validating DIDs
-
-Again, note that the outcome of this function heavily depends on the used plugin. [`RustStorageCache`] for example will only accept DIDs as valid, if their name is "test".
-
-```rust
-let did_result = vade.check_did("test", &fetched).await;
-match did_result {
-    Ok(_) => (),
-    Err(_) => panic!("VC not valid"),
-}
-```
-
+Documentation about [`Vade`]s functions and their meaning can be found [`here`](https://docs.rs/vade/*/vade/struct.Vade.html).
 
 ## Plugins
 
-Plugins are the modules that perform the actual work in the [`Vade`] module. This project already has one plugin included,  [`RustStorageCache`], which can be used as a reference for creating own plugins.
+[`Vade`] is relying on plugins to run interact provider specific logic. The current set of Plugins can be seen below:
 
-### Create new Plugins
+### DID plugins
 
-Developing plugins for `vade` can be done by implementing one or more traits from [`vade::library::traits`], e.g.
+| Method   | Status | Crate |
+| -------- | ------ | ----- |
+| did-evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
+| (universal resolver method list) | in development  | - |
 
-- [`VcResolver`]
-- [`DidResolver`]
-- [`Logger`] (currently unclear if this plugin will be continued, but can be used for implementation tests)
+More coming soon. To write your own plugins, have a look at [writing own plugins].
 
-An example for a simple plugin is the provided [`RustStorageCache`]. It implements [`DidResolver`] as well as [`VcResolver`] functionalities. For your implementation you can, of course, decide to implement only a single trait in a plugin.
+### VC plugins
 
-### Basic Behavior
+| Method   | Status | Crate |
+| -------- | ------ | ----- |
+| did-evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
 
-This plugin implements the following traits:
+More coming soon. To write your own plugins, have a look at [writing own plugins].
 
-- [`VcResolver`] - therefore, it can handle VC documents
-- [`DidResolver`] - therefore, it can handle DID documents
+## Example Usage
 
-This allows us to register it as these resolvers with
+```rust
+use vade::Vade;
+// use some_crate:ExamplePlugin;
+# use vade::VadePlugin;
+# struct ExamplePlugin { }
+# impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+# impl VadePlugin for ExamplePlugin {}
 
-- [`register_vc_resolver`]
-- [`register_did_resolver`]
+async fn example_vade_usage() {
+    let ep: ExamplePlugin = ExamplePlugin::new();
+    let mut vade = Vade::new();
+    vade.register_plugin(Box::from(ep));
 
-respectively.
+    match vade.did_create("did:example", "", "").await {
+        Ok(results) => {
+            let result = results[0].as_ref().unwrap().to_string();
+            println!("created did: {}", result);
+        },
+        Err(e) => panic!(format!("could not create did; {}", e)),
+    };
+}
+```
 
-As soon as they are registered as a plugin for a certain type of operation, they are called for related operations (e.g. [`get_vc_document`]) by the [`Vade`] instance they are registered in.
+As you can see, an instance of `ExamplePlugin` is created and handed over to a [`Vade`] instance with [`register_plugin`]. To be a valid argument for this, `ExamplePlugin` needs to implement [`VadePlugin`].
 
-### Library Functions that utilize Plugins
+[`Vade`] delegates the call *all* functions with the same name as the functions of [`VadePlugin`] to *all* registered plugins, so the result of such calls is a `Vec` of optional `String` values (`Vec<Option<String>>`).
 
-This section shows a short overview over the plugin related functions. For more details, have a look at the [`Vade`] documentation.
+## Basic Plugin Flow
 
-#### Plugin registration
+Calls of plugin related functions follow the rule set described here:
 
-These functions can be used to register new resolver plugins:
+- a [`Vade`] instance delegates **all** calls of plugin related functions to **all** registered plugins
+- those [`VadePlugin`] instances then may or may not process the request
+- requests may be ignored due to not being implemented or due to ignoring them due to plugin internal logic (e.g. if a did method is not supported by the plugin, requests for this method are usually ignored)
+- ignored plugin requests do not end up in the result `Vec`, so a [`Vade`] may have registered multiple plugins, but if only on plugin caters to a certain did method, calls related to this method will only yield a single result
 
-- [`register_did_resolver`]
-- [`register_vc_resolver`]
+![vade_plugin_flow](https://user-images.githubusercontent.com/1394421/85983296-8f3dd700-b9e7-11ea-92ee-47e8c441e576.png)
 
-#### Setters
+## Vade Features
 
-These functions will call all registered plugins respectively and with given arguments (e.g. setting a DID will only call DID resolver functions, etc.):
+The current set of features can be grouped into 3 clusters:
 
-- [`set_did_document`]
-- [`set_vc_document`]
+- management functions
+- DID interaction
+- zero knowledge proof VC interaction
 
-If multiple plugins are registered, awaits completion of all actions. First plugin that fails lets this request fail.
+### Management Functions
 
-#### Getters
+**[`register_plugin`]**
 
-These functions will call all registered plugins respectively and with given arguments (e.g. getting a DID will only call DID resolver functions, etc.):
+Registers a new plugin. See [`VadePlugin`](https://docs.rs/vade/*/vade/struct.VadePlugin.html) for details about how they work.
 
-- [`get_did_document`]
-- [`get_vc_document`]
+### DID Interaction
 
-If multiple plugins are registered, first **successful** response will be used. Request will fail if all plugins failed.
+**[`did_create`]**
 
-#### Validation
+Creates a new DID. May also persist a DID document for it, depending on plugin implementation.
 
-These functions will call all registered plugins respectively and with given arguments (e.g. getting a DID will only call DID resolver functions, etc.):
+-----
 
-- [`check_did_document`]
-- [`check_vc_document`]
+**[`did_resolve`]**
 
-A document is considered valid if at least one resolver confirms its validity. Resolvers may throw to indicate:
+Fetch data about a DID. This usually returns a DID document.
 
-- that they are not responsible for this document
-- that they consider this document invalid
+-----
 
-The current validation flow offers only a limited way of feedback for invalidity and may undergo further changes in future.
+**[`did_update`]**
 
-### More Plugins
+Updates data related to a DID. May also persist a DID document for it, depending on plugin implementation.
 
-A plugin working with VCs and DIDs on [evan.network] called [`vade-evan`] has been implemented. Its usage is equivalent to the description above, more details can be found on its project page.
+### Zero Knowledge Proof VC Interaction
 
-You can also start writing your own plugin, by following the behavior outlined with the traits in this library.
+**[`vc_zkp_create_credential_schema`]**
+
+Creates a new zero-knowledge proof credential schema. The schema specifies properties a credential
+includes, both optional and mandatory.
+
+-----
+
+**[`vc_zkp_create_credential_definition`]**
+
+Creates a new zero-knowledge proof credential definition. A credential definition holds cryptographic key material
+and is needed by an issuer to issue a credential, thus needs to be created before issuance. A credential definition
+is always bound to one credential schema.
+
+-----
+
+**[`vc_zkp_create_credential_proposal`]**
+
+Creates a new zero-knowledge proof credential proposal. This message is the first in the
+credential issuance flow.
+
+-----
+
+**[`vc_zkp_create_credential_offer`]**
+
+Creates a new zero-knowledge proof credential offer. This message is the response to a credential proposal.
+
+-----
+
+**[`vc_zkp_request_credential`]**
+
+Requests a credential. This message is the response to a credential offering.
+
+-----
+
+**[`vc_zkp_create_revocation_registry_definition`]**
+
+Creates a new revocation registry definition. The definition consists of a public and a private part.
+The public part holds the cryptographic material needed to create non-revocation proofs. The private part
+needs to reside with the registry owner and is used to revoke credentials.
+
+-----
+
+**[`vc_zkp_update_revocation_registry`]**
+
+Updates a revocation registry for a zero-knowledge proof. This step is necessary after revocation one or
+more credentials.
+
+-----
+
+**[`vc_zkp_issue_credential`]**
+
+Issues a new credential. This requires an issued schema, credential definition, an active revocation
+registry and a credential request message.
+
+-----
+
+**[`vc_zkp_revoke_credential`]**
+
+Revokes a credential. After revocation the published revocation registry needs to be updated with information
+returned by this function.
+
+-----
+
+**[`vc_zkp_request_proof`]**
+
+Requests a zero-knowledge proof for one or more credentials issued under one or more specific schemas.
+
+-----
+
+**[`vc_zkp_present_proof`]**
+
+Presents a proof for a zero-knowledge proof credential. A proof presentation is the response to a
+proof request.
+
+-----
+
+**[`vc_zkp_verify_proof`]**
+
+Verifies a one or multiple proofs sent in a proof presentation.
+
+-----
+
+Except for the management functions all functions will be delegated to plugins. Plugins handling follows the following rules:
+
+- a [`Vade`] instance delegates **all** calls of plugin related functions to **all** registered plugins
+- those [`VadePlugin`] instances then may or may not process the request
+- requests may be ignored due to not being implemented or due to ignoring them due to plugin internal logic (e.g. if a did method is not supported by the plugin, requests for this method are usually ignored)
+- ignored plugin requests do not end up in the result `Vec`, so a [`Vade`] may have registered multiple plugins, but if only on plugin caters to a certain did method, calls related to this method will only yield a single result
+
+## Writing own Plugins
+
+Writing own plugin is rather simple, an example and details how to write them can be found in the [`VadePlugin`] documentation.
 
 ## Wasm Support
 
@@ -223,22 +211,31 @@ Vade supports Wasm! ^^
 
 For an example how to use [`Vade`] in Wasm and a how to guide, have a look at our [vade-wasm-example] project.
 
-[evan.network]: https://evan.network
-[vade-wasm-example]: https://github.com/evannetwork/vade-wasm-example
-[`check_did_document`]: traits/trait.DidResolver.html#tymethod.check_did_document
-[`check_vc_document`]: traits/trait.VcResolver.html#tymethod.check_vc_document
-[`DidResolver`]: traits/trait.DidResolver.html
-[`get_did_document`]: traits/trait.DidResolver.html#tymethod.get_did_document
-[`get_vc_document`]: traits/trait.VcResolver.html#tymethod.get_vc_document
-[`Logger`]: traits/trait.Logger.html
-[`register_did_resolver`]: struct.Vade.html#method.register_did_resolver
-[`register_vc_resolver`]: struct.Vade.html#method.register_did_resolver
-[`RustStorageCache`]: plugin/rust_storage_cache/struct.RustStorageCache.html
-[`RustVcResolverEvan`]: https://docs.rs/vade-evan/*/vade_evan/plugin/rust_vcresolver_evan/struct.RustVcResolverEvan.html
-[`set_did_document`]: traits/trait.DidResolver.html#tymethod.set_did_document
-[`set_vc_document`]: traits/trait.VcResolver.html#tymethod.set_vc_document
+[`did_create`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.did_create
+[`did_resolve`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.did_resolve
+[`did_update`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.did_update
+[`register_plugin`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_plugin
 [`vade-evan`]: https://docs.rs/vade-evan
-[`vade::library::traits`]: traits/index.html
-[`vade library file`]: https://github.com/evannetwork/vade/blob/develop/src/lib.rs
-[`Vade`]: struct.Vade.html
-[`VcResolver`]: traits/trait.VcResolver.html
+[`Vade`]: https://docs.rs/vade/*/vade/struct.Vade.html
+[`VadePlugin`]: https://docs.rs/vade/*/vade/trait.VadePlugin.html
+[`vc_zkp_create_credential_definition`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_create_credential_definition
+[`vc_zkp_create_credential_offer`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_create_credential_offer
+[`vc_zkp_create_credential_proposal`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_create_credential_proposal
+[`vc_zkp_create_credential_schema`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_create_credential_schema
+[`vc_zkp_create_revocation_registry_definition`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_create_revocation_registry_definition
+[`vc_zkp_issue_credential`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_issue_credential
+[`vc_zkp_present_proof`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_present_proof
+[`vc_zkp_request_credential`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_request_credential
+[`vc_zkp_request_proof`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_request_proof
+[`vc_zkp_revoke_credential`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_revoke_credential
+[`vc_zkp_update_revocation_registry`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_update_revocation_registry
+[`vc_zkp_verify_proof`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.vc_zkp_verify_proof
+[vade-wasm-example]: https://github.com/evannetwork/vade-wasm-example
+<!--
+[wasm support]: https://docs.rs/vade/*/vade/#wasm-support
+[writing own plugins]: https://docs.rs/vade/*/vade/#writing-own-plugins
+-->
+<!-- for Readme -->
+[wasm support]: #wasm-support
+[writing own plugins]: #writing-own-plugins
+<!-- -->

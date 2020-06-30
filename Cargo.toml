@@ -1,6 +1,6 @@
 [package]
 name = "vade"
-version = "0.0.6"
+version = "0.0.7"
 authors = ["evan GmbH"]
 edition = "2018"
 license = "Apache-2.0"
@@ -16,12 +16,13 @@ keywords = ["did", "ssi", "vc"]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-async-trait = "0.1.24"
-futures = "0.3.4"
-simple-error = "0.2.1"
+async-trait = "0.1.31"
+env_logger = "0.7.1"
+futures = "0.3.5"
+log = "0.4.8"
 
 [dev-dependencies]
-tokio = { version = "0.2.11", features = ["macros", "rt-threaded"] }
+tokio = { version = "0.2.21", features = ["macros", "rt-threaded"] }
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.
