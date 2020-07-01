@@ -31,16 +31,17 @@
 //! 
 //! ### DID plugins
 //! 
-//! | Method   | Status | Crate |
+//! | Method   | Status | Link |
 //! | -------- | ------ | ----- |
 //! | did-evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
+//! | did-example | 0.0.1  | [vade-example-plugin](https://github.com/evannetwork/vade-example-plugin) |
 //! | (universal resolver method list) | in development  | - |
 //!
 //! More coming soon. To write your own plugins, have a look at [writing own plugins].
 //! 
 //! ### VC plugins
 //! 
-//! | Method   | Status | Crate |
+//! | Method   | Status | Link |
 //! | -------- | ------ | ----- |
 //! | did-evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
 //!
