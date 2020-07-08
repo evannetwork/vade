@@ -69,12 +69,12 @@ impl<T> VadePluginResultValue<T> {
 /// name. While the plugin returns a `VadePluginResultValue<T>`result, [`Vade`] will return
 /// a `Vec<T>` result. [`Vade`]'s result is the list of all results from all plugins that did
 /// implement the called function and did not ignore the request.
-/// 
+///
 /// For example [`did_create`](https://docs.rs/vade/*/vade/struct.Vade.html#method.did_create)
 /// / [`did_create`](https://docs.rs/vade/*/vade/trait.VadePlugin.html#method.did_create):
 ///
 /// [`Vade`]'s function:
-/// 
+///
 /// ```ignored
 /// pub async fn did_create(
 ///     &mut self,
@@ -85,7 +85,7 @@ impl<T> VadePluginResultValue<T> {
 ///     // ...
 /// }
 /// ```
-/// 
+///
 /// Will call all [`VadePlugin`]s' functions:
 ///
 /// ```ignored
@@ -98,9 +98,9 @@ impl<T> VadePluginResultValue<T> {
 ///     // ...
 /// }
 /// ```
-/// 
+///
 /// ## Result Values of Plugins
-/// 
+///
 /// Plugins return results with the type [`VadePluginResultValue`], which has 3 Variants:
 ///
 /// - [`NotImplemented`], for functions not implemented in a plugin
@@ -110,7 +110,7 @@ impl<T> VadePluginResultValue<T> {
 /// ## Example
 ///
 /// A simple plugin could look like this:
-/// 
+///
 /// ```rust
 /// use async_trait::async_trait;
 /// use vade::{VadePlugin, VadePluginResultValue};

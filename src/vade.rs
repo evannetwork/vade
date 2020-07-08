@@ -69,7 +69,7 @@ macro_rules! handle_results {
                 &$task_name, &$did_or_method, e
             ))),
         }
-    }
+    };
 }
 
 /// A [`Vade`] instance is your single point of contact for interacting with DIDs and VCs.
