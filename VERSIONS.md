@@ -6,6 +6,8 @@
 
 ### Fixes
 
+- remove unwrap calls
+
 ### Deprecations
 
 ## Version 0.0.7
