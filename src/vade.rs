@@ -17,40 +17,16 @@
 use crate::{VadePlugin, VadePluginResultValue};
 use futures::future::try_join_all;
 
-// macro_rules! plugin_function3 {
-//     ($fn_name:ident) => {
-//         pub async fn $fn_name(
-//             &mut self,
-//             did_or_method: &str,
-//             options: &str,
-//             payload: &str,
-//         ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-//             let fn_name_string = stringify!($fn_name);
-//             self.log_fun_enter(&fn_name_string, &did_or_method);
-//             let mut futures = Vec::new();
-//             for plugin in self.plugins.iter_mut() {
-//                 futures.push(plugin.$fn_name(did_or_method, options, payload));
-//             }
-//             match try_join_all(futures).await {
-//                 Ok(responses) => {
-//                     let mut filtered_results = Vec::new();
-//                     for response in responses {
-//                         if let VadePluginResultValue::Success(value) = response {
-//                             filtered_results.push(value);
-//                         }
-//                     }
-//                     self.log_fun_leave(&fn_name_string, filtered_results.len(), &did_or_method);
-//                     Ok(filtered_results)
-//                 }
-//                 Err(e) => Err(Box::from(format!(
-//                     "could not run {} for method \"{}\"; {}",
-//                     &fn_name_string, &did_or_method, e
-//                 ))),
-//             }
-//         }
-//     }
-// }
-
+/// Calls `try_join_all` on given functions. Logs messages depending on given task name and
+/// DID or method.
+///
+/// # Arguments
+///
+/// `$self` - self reference of instance
+/// `$task_name` - name of task to wrap up functions for
+/// `$futures` - `Vec` of futures to wrap up
+/// `$did_or_method` - target of task, can be a DID (e.g. to update) or a method
+/// (e.g. to create a DID for)
 macro_rules! handle_results {
     ($self:ident, $task_name:ident, $futures:ident, $did_or_method:ident) => {
         match try_join_all($futures).await {
@@ -112,7 +88,6 @@ impl Vade {
     ///     Ok(())
     /// }
     /// ```
-    // plugin_function3!(did_create);
     pub async fn did_create(
         &mut self,
         did_method: &str,
