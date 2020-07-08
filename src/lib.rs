@@ -57,18 +57,19 @@
 //! # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
 //! # impl VadePlugin for ExamplePlugin {}
 //!
-//! async fn example_vade_usage() {
+//! async fn example_vade_usage() -> Result<(), Box<dyn std::error::Error>> {
 //!     let ep: ExamplePlugin = ExamplePlugin::new();
 //!     let mut vade = Vade::new();
 //!     vade.register_plugin(Box::from(ep));
 //!
 //!     match vade.did_create("did:example", "", "").await {
 //!         Ok(results) => {
-//!             let result = results[0].as_ref().unwrap().to_string();
+//!             let result = results[0].as_ref().ok_or("result not found")?.to_string();
 //!             println!("created did: {}", result);
 //!         },
 //!         Err(e) => panic!(format!("could not create did; {}", e)),
 //!     };
+//!     Ok(())
 //! }
 //! ```
 //!
