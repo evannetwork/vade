@@ -17,8 +17,38 @@
 use crate::{VadePlugin, VadePluginResultValue};
 use futures::future::try_join_all;
 
-/// A [`Vade`] instance is your single point of contact for interacting with DIDs and VCs.
+/// Calls `try_join_all` on given functions. Logs messages depending on given task name and
+/// DID or method.
+///
+/// # Arguments
+///
+/// `$self` - self reference of instance
+/// `$task_name` - name of task to wrap up functions for
+/// `$futures` - `Vec` of futures to wrap up
+/// `$did_or_method` - target of task, can be a DID (e.g. to update) or a method
+/// (e.g. to create a DID for)
+macro_rules! handle_results {
+    ($self:ident, $task_name:ident, $futures:ident, $did_or_method:ident) => {
+        match try_join_all($futures).await {
+            Ok(responses) => {
+                let mut filtered_results = Vec::new();
+                for response in responses {
+                    if let VadePluginResultValue::Success(value) = response {
+                        filtered_results.push(value);
+                    }
+                }
+                $self.log_fun_leave(&$task_name, filtered_results.len(), &$did_or_method);
+                Ok(filtered_results)
+            }
+            Err(e) => Err(Box::from(format!(
+                "could not run {} for \"{}\"; {}",
+                &$task_name, &$did_or_method, e
+            ))),
+        }
+    };
+}
 
+/// A [`Vade`] instance is your single point of contact for interacting with DIDs and VCs.
 pub struct Vade {
     /// registered plugins
     pub plugins: Vec<Box<dyn VadePlugin>>,
@@ -47,14 +77,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.did_create("did:example", "", "").await.unwrap();
+    ///     let results = vade.did_create("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("created new did: {}", results[0].as_ref().unwrap());
+    ///         println!("created new did: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn did_create(
@@ -63,28 +94,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("did_create", &did_method);
+        let task_name = "did_create";
+        self.log_fun_enter(&task_name, &did_method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.did_create(did_method, options, payload));
         }
-        // TODO find a better solution than copy & paste >.>
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave("did_create", filtered_results.len(), &did_method);
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not create did for method \"{}\"; {}",
-                &did_method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, did_method)
     }
 
     /// Fetch data about a DID. This usually returns a DID document.
@@ -97,41 +113,28 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.did_resolve("did:example:123").await.unwrap();
+    ///     let results = vade.did_resolve("did:example:123").await?;
     ///     if !results.is_empty() {
-    ///         println!("got did: {}", results[0].as_ref().unwrap());
+    ///         println!("got did: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn did_resolve(
         &mut self,
         did: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("did_resolve", &did);
+        let task_name = "did_resolve";
+        self.log_fun_enter(&task_name, &did);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.did_resolve(did));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave("did_resolve", filtered_results.len(), &did);
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not resolve did \"{}\"; {}",
-                &did, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, did)
     }
 
     /// Updates data related to a DID. May also persist a DID document for it, depending on plugin implementation.
@@ -146,14 +149,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.did_update("did:example", "", "").await.unwrap();
+    ///     let results = vade.did_update("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("did successfully updated: {}", results[0].as_ref().unwrap());
+    ///         println!("did successfully updated: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn did_update(
@@ -162,27 +166,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("did_update", &did);
+        let task_name = "did_update";
+        self.log_fun_enter(&task_name, &did);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.did_update(did, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave("did_update", filtered_results.len(), &did);
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not update did \"{}\"; {}",
-                &did, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, did)
     }
 
     /// Registers a new plugin. See [`VadePlugin`](https://docs.rs/vade/*/vade/struct.VadePlugin.html) for details about how they work.
@@ -200,14 +190,15 @@ impl Vade {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn did_did_update() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     let mut example_plugin = ExamplePlugin::new();
     ///     vade.register_plugin(Box::from(example_plugin));
-    ///     let results = vade.did_create("did:example", "", "").await.unwrap();
+    ///     let results = vade.did_create("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("did successfully updated: {}", results[0].as_ref().unwrap());
+    ///         println!("did successfully updated: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub fn register_plugin(&mut self, plugin: Box<dyn VadePlugin>) {
@@ -229,14 +220,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_create_credential_definition("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_create_credential_definition("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("created a credential definition: {}", results[0].as_ref().unwrap());
+    ///         println!("created a credential definition: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_create_credential_definition(
@@ -245,31 +237,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_create_credential_definition", &method);
+        let task_name = "vc_zkp_create_credential_definition";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_create_credential_definition(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave(
-                    "vc_zkp_create_credential_definition",
-                    filtered_results.len(),
-                    &method,
-                );
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not create credential definition for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Creates a new zero-knowledge proof credential offer. This message is the response to a credential proposal.
@@ -284,14 +258,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_create_credential_offer("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_create_credential_offer("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("created a credential offer: {}", results[0].as_ref().unwrap());
+    ///         println!("created a credential offer: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_create_credential_offer(
@@ -300,31 +275,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_create_credential_offer", &method);
+        let task_name = "vc_zkp_create_credential_offer";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_create_credential_offer(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave(
-                    "vc_zkp_create_credential_offer",
-                    filtered_results.len(),
-                    &method,
-                );
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not create credential offer for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Creates a new zero-knowledge proof credential proposal. This message is the first in the
@@ -340,14 +297,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_create_credential_proposal("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_create_credential_proposal("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("created a credential proposal: {}", results[0].as_ref().unwrap());
+    ///         println!("created a credential proposal: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_create_credential_proposal(
@@ -356,31 +314,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_create_credential_proposal", &method);
+        let task_name = "vc_zkp_create_credential_proposal";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_create_credential_proposal(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave(
-                    "vc_zkp_create_credential_proposal",
-                    filtered_results.len(),
-                    &method,
-                );
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not create credential proposal for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Creates a new zero-knowledge proof credential schema. The schema specifies properties a credential
@@ -396,14 +336,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_create_credential_schema("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_create_credential_schema("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("created a credential schema: {}", results[0].as_ref().unwrap());
+    ///         println!("created a credential schema: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_create_credential_schema(
@@ -412,31 +353,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_create_credential_schema", &method);
+        let task_name = "vc_zkp_create_credential_schema";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_create_credential_schema(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave(
-                    "vc_zkp_create_credential_schema",
-                    filtered_results.len(),
-                    &method,
-                );
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not create credential schema for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Creates a new revocation registry definition. The definition consists of a public and a private part.
@@ -453,14 +376,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_create_revocation_registry_definition("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_create_revocation_registry_definition("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("created a revocation registry definition: {}", results[0].as_ref().unwrap());
+    ///         println!("created a revocation registry definition: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_create_revocation_registry_definition(
@@ -469,33 +393,15 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_create_revocation_registry_definition", &method);
+        let task_name = "vc_zkp_create_revocation_registry_definition";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(
                 plugin.vc_zkp_create_revocation_registry_definition(method, options, payload),
             );
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave(
-                    "vc_zkp_create_revocation_registry_definition",
-                    filtered_results.len(),
-                    &method,
-                );
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not create revocation registry definition for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Updates a revocation registry for a zero-knowledge proof. This step is necessary after revocation one or
@@ -511,14 +417,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_update_revocation_registry("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_update_revocation_registry("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("updated revocation registry: {}", results[0].as_ref().unwrap());
+    ///         println!("updated revocation registry: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_update_revocation_registry(
@@ -527,31 +434,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_update_revocation_registry", &method);
+        let task_name = "vc_zkp_update_revocation_registry";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_update_revocation_registry(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave(
-                    "vc_zkp_update_revocation_registry",
-                    filtered_results.len(),
-                    &method,
-                );
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not update revocation registry for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Issues a new credential. This requires an issued schema, credential definition, an active revocation
@@ -567,14 +456,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_issue_credential("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_issue_credential("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("issued credential: {}", results[0].as_ref().unwrap());
+    ///         println!("issued credential: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_issue_credential(
@@ -583,27 +473,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_issue_credential", &method);
+        let task_name = "vc_zkp_issue_credential";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_issue_credential(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave("vc_zkp_issue_credential", filtered_results.len(), &method);
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not issue credential for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Presents a proof for a zero-knowledge proof credential. A proof presentation is the response to a
@@ -619,14 +495,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_present_proof("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_present_proof("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("created a proof presentation: {}", results[0].as_ref().unwrap());
+    ///         println!("created a proof presentation: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_present_proof(
@@ -635,27 +512,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_present_proof", &method);
+        let task_name = "vc_zkp_present_proof";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_present_proof(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave("vc_zkp_present_proof", filtered_results.len(), &method);
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not present proof for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Requests a credential. This message is the response to a credential offering.
@@ -670,14 +533,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_request_credential("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_request_credential("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("created credential request: {}", results[0].as_ref().unwrap());
+    ///         println!("created credential request: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_request_credential(
@@ -686,27 +550,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_request_credential", &method);
+        let task_name = "vc_zkp_request_credential";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_request_credential(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave("vc_zkp_request_credential", filtered_results.len(), &method);
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not request credential for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Requests a zero-knowledge proof for one or more credentials issued under one or more specific schemas.
@@ -721,14 +571,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_request_proof("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_request_proof("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("created proof request: {}", results[0].as_ref().unwrap());
+    ///         println!("created proof request: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_request_proof(
@@ -737,27 +588,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_request_proof", &method);
+        let task_name = "vc_zkp_request_proof";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_request_proof(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave("vc_zkp_request_proof", filtered_results.len(), &method);
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not request proof for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Revokes a credential. After revocation the published revocation registry needs to be updated with information
@@ -773,14 +610,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_revoke_credential("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_revoke_credential("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("revoked credential: {}", results[0].as_ref().unwrap());
+    ///         println!("revoked credential: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_revoke_credential(
@@ -789,27 +627,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_revoke_credential", &method);
+        let task_name = "vc_zkp_revoke_credential";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_revoke_credential(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave("vc_zkp_revoke_credential", filtered_results.len(), &method);
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not revoke credential for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Verifies a one or multiple proofs sent in a proof presentation.
@@ -824,14 +648,15 @@ impl Vade {
     ///
     /// ```
     /// use vade::Vade;
-    /// async fn example() {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
-    ///     let results = vade.vc_zkp_verify_proof("did:example", "", "").await.unwrap();
+    ///     let results = vade.vc_zkp_verify_proof("did:example", "", "").await?;
     ///     if !results.is_empty() {
-    ///         println!("verified proof: {}", results[0].as_ref().unwrap());
+    ///         println!("verified proof: {}", results[0].as_ref().ok_or("result not found")?);
     ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub async fn vc_zkp_verify_proof(
@@ -840,27 +665,13 @@ impl Vade {
         options: &str,
         payload: &str,
     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
-        self.log_fun_enter("vc_zkp_verify_proof", &method);
+        let task_name = "vc_zkp_verify_proof";
+        self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
         for plugin in self.plugins.iter_mut() {
             futures.push(plugin.vc_zkp_verify_proof(method, options, payload));
         }
-        match try_join_all(futures).await {
-            Ok(responses) => {
-                let mut filtered_results = Vec::new();
-                for response in responses {
-                    if let VadePluginResultValue::Success(value) = response {
-                        filtered_results.push(value);
-                    }
-                }
-                self.log_fun_leave("vc_zkp_verify_proof", filtered_results.len(), &method);
-                Ok(filtered_results)
-            }
-            Err(e) => Err(Box::from(format!(
-                "could not verify proof for method \"{}\"; {}",
-                &method, e
-            ))),
-        }
+        handle_results!(self, task_name, futures, method)
     }
 
     /// Writes a debug message when entering a plugin function.
