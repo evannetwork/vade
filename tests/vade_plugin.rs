@@ -88,10 +88,7 @@ async fn vade_plugin_plugin_can_call_fallback_for_not_implemented() {
     let mut tp: TestPlugin = TestPlugin::new();
     match tp.vc_zkp_verify_proof("", "", "").await {
         Ok(response) => {
-            assert!(match response {
-                VadePluginResultValue::NotImplemented => true,
-                _ => false,
-            });
+            assert!(matches!(response, VadePluginResultValue::NotImplemented));
         }
         Err(e) => panic!(format!("{}", e)),
     }
