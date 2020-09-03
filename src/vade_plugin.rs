@@ -246,6 +246,43 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
+    /// Runs a custom function, this allows to use `Vade`s API for custom calls, that do not belong
+    /// to `Vade`s core functionality but may be required for a projects use cases.
+    ///
+    /// # Arguments
+    ///
+    /// * `method` - method to call a function for (e.g. "did:example")
+    /// * `function` - function to call (e.g. "test connection")
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (e.g. actual data to write)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::{VadePlugin, VadePluginResultValue};
+    /// // use some_crate:ExamplePlugin;
+    /// # struct ExamplePlugin { }
+    /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+    /// # impl VadePlugin for ExamplePlugin {}
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
+    ///     let result = ep.run_custom_function("did:example", "test connection", "", "").await?;
+    ///     if let VadePluginResultValue::Success(Some(value)) = result {
+    ///         println!("connection status: {}", &value);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    async fn run_custom_function(
+        &mut self,
+        method: &str,
+        function: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
     /// Creates a new zero-knowledge proof credential definition. A credential definition holds cryptographic key material
     /// and is needed by an issuer to issue a credential, thus needs to be created before issuance. A credential definition
     /// is always bound to one credential schema.

@@ -206,6 +206,47 @@ impl Vade {
         self.plugins.push(plugin);
     }
 
+    /// Runs a custom function, this allows to use `Vade`s API for custom calls, that do not belong
+    /// to `Vade`s core functionality but may be required for a projects use cases.
+    ///
+    /// # Arguments
+    ///
+    /// * `method` - method to call a function for (e.g. "did:example")
+    /// * `function` - function to call (e.g. "test connection")
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (e.g. actual data to write)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::Vade;
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let mut vade = Vade::new();
+    ///     // // register example plugin e.g. with
+    ///     // vade.register_plugin(example_plugin);
+    ///     let results = vade.run_custom_function("did:example", "test connection", "", "").await?;
+    ///     if !results.is_empty() {
+    ///         println!("connection status is: {}", results[0].as_ref().ok_or("result not found")?);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    pub async fn run_custom_function(
+        &mut self,
+        method: &str,
+        function: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+        let task_name = "run_custom_function";
+        self.log_fun_enter(&task_name, &method);
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.run_custom_function(method, function, options, payload));
+        }
+        handle_results!(self, task_name, futures, method)
+    }
+
     /// Creates a new zero-knowledge proof credential definition. A credential definition holds cryptographic key material
     /// and is needed by an issuer to issue a credential, thus needs to be created before issuance. A credential definition
     /// is always bound to one credential schema.
