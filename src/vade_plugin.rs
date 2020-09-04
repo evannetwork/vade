@@ -666,7 +666,7 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
-    /// Verifies a one or multiple proofs sent in a proof presentation.
+    /// Verifies one or multiple proofs sent in a proof presentation.
     ///
     /// # Arguments
     ///
