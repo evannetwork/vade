@@ -8,6 +8,16 @@
 
 ### Deprecations
 
+## Version 0.0.8
+
+### Features
+
+- add `run_custom_function` to support custom logic
+
+### Fixes
+
+- remove unwrap calls
+
 ## Version 0.0.7
 
 ### Features

@@ -23,18 +23,19 @@ Documentation about [`Vade`]s functions and their meaning can be found [`here`](
 
 ### DID plugins
 
-| Method   | Status | Crate |
+| Method   | Status | Link |
 | -------- | ------ | ----- |
-| did-evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
+| did:evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
+| did:example | 0.0.1  | [vade-example-plugin](https://github.com/evannetwork/vade-example-plugin) |
 | (universal resolver method list) | in development  | - |
 
 More coming soon. To write your own plugins, have a look at [writing own plugins].
 
 ### VC plugins
 
-| Method   | Status | Crate |
+| Method   | Status | Link |
 | -------- | ------ | ----- |
-| did-evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
+| did:evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
 
 More coming soon. To write your own plugins, have a look at [writing own plugins].
 
@@ -192,6 +193,12 @@ proof request.
 
 Verifies a one or multiple proofs sent in a proof presentation.
 
+### Custom Functions
+
+**[`run_custom_function`]**
+
+Calls a custom function. Plugins may subscribe to such custom calls, that are not part of the default set of [`Vade`]s default feature set, which allows to add custom plugin logic while using `Vade. Examples for this may be connection handling and key generation.
+
 -----
 
 Except for the management functions all functions will be delegated to plugins. Plugins handling follows the following rules:
@@ -215,6 +222,7 @@ For an example how to use [`Vade`] in Wasm and a how to guide, have a look at ou
 [`did_resolve`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.did_resolve
 [`did_update`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.did_update
 [`register_plugin`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.register_plugin
+[`run_custom_function`]: https://docs.rs/vade/*/vade/struct.Vade.html#method.run_custom_function
 [`vade-evan`]: https://docs.rs/vade-evan
 [`Vade`]: https://docs.rs/vade/*/vade/struct.Vade.html
 [`VadePlugin`]: https://docs.rs/vade/*/vade/trait.VadePlugin.html
