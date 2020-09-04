@@ -23,19 +23,19 @@ Documentation about [`Vade`]s functions and their meaning can be found [`here`](
 
 ### DID plugins
 
-| Method   | Status | Link |
-| -------- | ------ | ----- |
-| did:evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
-| did:example | 0.0.1  | [vade-example-plugin](https://github.com/evannetwork/vade-example-plugin) |
-| (universal resolver method list) | in development  | - |
+| Method | Info |
+| ------ | ---- |
+| did:evan | [![crates.io](https://img.shields.io/crates/v/vade-evan.svg)](https://crates.io/crates/vade-evan) |
+| did:example | [vade-example-plugin](https://github.com/evannetwork/vade-example-plugin) |
+| (universal resolver method list) | in development  |
 
 More coming soon. To write your own plugins, have a look at [writing own plugins].
 
 ### VC plugins
 
-| Method   | Status | Link |
-| -------- | ------ | ----- |
-| did:evan | 0.0.1  | [vade-evan](https://crates.io/crates/vade-evan) |
+| Method | Info |
+| ------ | ---- |
+| did:evan | [![crates.io](https://img.shields.io/crates/v/vade-evan.svg)](https://crates.io/crates/vade-evan) |
 
 More coming soon. To write your own plugins, have a look at [writing own plugins].
 
