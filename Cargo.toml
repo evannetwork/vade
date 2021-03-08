@@ -4,7 +4,6 @@ version = "0.0.8"
 authors = ["evan GmbH"]
 edition = "2018"
 license = "Apache-2.0"
-license-file = "LICENSE.txt"
 description = "VC and DID engine"
 homepage = "https://github.com/evannetwork/vade"
 documentation = "https://docs.rs/crate/vade"

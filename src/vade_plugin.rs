@@ -528,6 +528,40 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
+    /// Finishes a credential, e.g. by incorporating the prover's master secret into the credential signature after issuance.
+    ///
+    /// # Arguments
+    ///
+    /// * `method` - method to update a finish credential for (e.g. "did:example")
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (e.g. actual data to write)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::{VadePlugin, VadePluginResultValue};
+    /// // use some_crate:ExamplePlugin;
+    /// # struct ExamplePlugin { }
+    /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+    /// # impl VadePlugin for ExamplePlugin {}
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
+    ///     let result = ep.vc_zkp_finish_credential("did:example", "", "").await?;
+    ///     if let VadePluginResultValue::Success(Some(value)) = result {
+    ///         println!("finished credential: {}", &value);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    async fn vc_zkp_finish_credential(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
     /// Presents a proof for a zero-knowledge proof credential. A proof presentation is the response to a
     /// proof request.
     ///
