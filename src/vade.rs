@@ -523,6 +523,44 @@ impl Vade {
         handle_results!(self, task_name, futures, method)
     }
 
+    /// Finishes a credential, e.g. by incorporating the prover's master secret into the credential signature after issuance.
+    ///
+    /// # Arguments
+    ///
+    /// * `method` - method to update a finish credential for (e.g. "did:example")
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (e.g. actual data to write)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::Vade;
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let mut vade = Vade::new();
+    ///     // // register example plugin e.g. with
+    ///     // vade.register_plugin(example_plugin);
+    ///     let results = vade.vc_zkp_finish_credential("did:example", "", "").await?;
+    ///     if !results.is_empty() {
+    ///         println!("issued credential: {}", results[0].as_ref().ok_or("result not found")?);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    pub async fn vc_zkp_finish_credential(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+        let task_name = "vc_zkp_finish_credential";
+        self.log_fun_enter(&task_name, &method);
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_finish_credential(method, options, payload));
+        }
+        handle_results!(self, task_name, futures, method)
+    }
+
     /// Presents a proof for a zero-knowledge proof credential. A proof presentation is the response to a
     /// proof request.
     ///
