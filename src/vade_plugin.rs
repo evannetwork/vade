@@ -81,7 +81,7 @@ impl<T> VadePluginResultValue<T> {
 ///     did_method: &str,
 ///     options: &str,
 ///     payload: &str,
-///     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+///     ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error + Send + Sync>> {
 ///     // ...
 /// }
 /// ```
@@ -94,7 +94,7 @@ impl<T> VadePluginResultValue<T> {
 ///     did_method: &str,
 ///     options: &str,
 ///     payload: &str,
-/// ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+/// ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error + Send + Sync>> {
 ///     // ...
 /// }
 /// ```
@@ -126,7 +126,7 @@ impl<T> VadePluginResultValue<T> {
 ///         _did_method: &str,
 ///         _options: &str,
 ///         _payload: &str,
-///     ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+///     ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>> {
 ///         Ok(VadePluginResultValue::Success(Some(
 ///             r#"{ "id": "did:example123:456" }"#.to_string(),
 ///         )))
@@ -145,9 +145,9 @@ impl<T> VadePluginResultValue<T> {
 /// [`VadePlugin`]: https://docs.rs/vade/*/vade/trait.VadePlugin.html
 /// [`VadePluginResultValue`]: https://docs.rs/vade/*/vade/enum.VadePluginResultValue.html
 
-#[async_trait(?Send)]
+#[async_trait]
 #[allow(unused_variables)] // to keep proper names for documentation and derived implementations
-pub trait VadePlugin {
+pub trait VadePlugin: Send + Sync {
     /// Creates a new DID. May also persist a DID document for it, depending on plugin implementation.
     ///
     /// # Arguments
@@ -164,7 +164,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.did_create("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -178,7 +178,8 @@ pub trait VadePlugin {
         did_method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -196,7 +197,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.did_resolve("did:example:123").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -208,7 +209,8 @@ pub trait VadePlugin {
     async fn did_resolve(
         &mut self,
         _did: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -228,7 +230,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.did_update("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -242,7 +244,8 @@ pub trait VadePlugin {
         did: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -264,7 +267,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.run_custom_function("did:example", "test connection", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -279,7 +282,8 @@ pub trait VadePlugin {
         function: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -301,7 +305,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_create_credential_definition("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -315,7 +319,8 @@ pub trait VadePlugin {
         did_method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -335,7 +340,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_create_credential_offer("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -348,7 +353,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -369,7 +375,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_create_credential_proposal("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -383,7 +389,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -404,7 +411,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_create_credential_schema("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -418,7 +425,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -440,7 +448,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_create_revocation_registry_definition("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -454,7 +462,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -475,7 +484,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_update_revocation_registry("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -489,7 +498,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -510,7 +520,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_issue_credential("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -524,7 +534,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -544,7 +555,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_finish_credential("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -558,7 +569,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -579,7 +591,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_present_proof("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -593,7 +605,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -613,7 +626,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_request_credential("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -627,7 +640,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -647,7 +661,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_request_proof("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -661,7 +675,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -682,7 +697,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_revoke_credential("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -696,7 +711,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
@@ -716,7 +732,7 @@ pub trait VadePlugin {
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
     ///     let result = ep.vc_zkp_verify_proof("did:example", "", "").await?;
     ///     if let VadePluginResultValue::Success(Some(value)) = result {
@@ -730,7 +746,8 @@ pub trait VadePlugin {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         Ok(VadePluginResultValue::NotImplemented)
     }
 }
