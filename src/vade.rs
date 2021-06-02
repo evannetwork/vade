@@ -175,6 +175,53 @@ impl Vade {
         handle_results!(self, task_name, futures, did)
     }
 
+    /// Processes a DIDComm message as received, usually also prepares a matching response for it.
+    ///
+    /// This response **may** be sent, depending on the configuration and implementation of
+    /// underlying plugins, but it is usually also returned as response to this request.
+    ///
+    /// # Arguments
+    ///
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (usually a raw DIDComm message)
+    /// ```
+    pub async fn didcomm_receive(
+        &mut self,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error + Send + Sync>> {
+        let task_name = "didcomm_receive";
+        self.log_fun_enter(&task_name, &task_name);
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.didcomm_receive(options, payload));
+        }
+        handle_results!(self, task_name, futures, task_name)
+    }
+
+    /// Processes a DIDComm message and prepares it for sending.
+    ///
+    /// It **may** be sent, depending on the configuration and implementation of underlying plugins.
+    ///
+    /// # Arguments
+    ///
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (usually a raw DIDComm message)
+    /// ```
+    pub async fn didcomm_send(
+        &mut self,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error + Send + Sync>> {
+        let task_name = "didcomm_send";
+        self.log_fun_enter(&task_name, &task_name);
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.didcomm_send(options, payload));
+        }
+        handle_results!(self, task_name, futures, task_name)
+    }
+
     /// Registers a new plugin. See [`VadePlugin`](https://docs.rs/vade/*/vade/struct.VadePlugin.html) for details about how they work.
     ///
     /// # Arguments

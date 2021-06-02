@@ -249,6 +249,24 @@ pub trait VadePlugin: Send + Sync {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
+    async fn didcomm_receive(
+        &mut self,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    async fn didcomm_send(
+        &mut self,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error + Send + Sync>>
+    {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
     /// Runs a custom function, this allows to use `Vade`s API for custom calls, that do not belong
     /// to `Vade`s core functionality but may be required for a projects use cases.
     ///
