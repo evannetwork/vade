@@ -181,6 +181,20 @@ impl Vade {
     ///
     /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
     /// * `payload` - JSON string with information for the request (usually a raw DIDComm message)
+    ///
+    /// # Example
+    /// ```
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
+    ///     let mut vade = Vade::new();
+    ///     // // register example plugin e.g. with
+    ///     // vade.register_plugin(example_plugin);
+    ///     let results = vade.didcomm_receive("", "").await?;
+    ///     if !results.is_empty() {
+    ///         println!("received DIDComm message: {}", results[0].as_ref().ok_or("result not found")?);
+    ///     }
+    ///     Ok(())
+    /// }
     /// ```
     pub async fn didcomm_receive(
         &mut self,
@@ -204,6 +218,21 @@ impl Vade {
     ///
     /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
     /// * `payload` - JSON string with information for the request (usually a raw DIDComm message)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
+    ///     let mut vade = Vade::new();
+    ///     // // register example plugin e.g. with
+    ///     // vade.register_plugin(example_plugin);
+    ///     let results = vade.didcomm_send("", "").await?;
+    ///     if !results.is_empty() {
+    ///         println!("prepared DIDComm message: {}", results[0].as_ref().ok_or("result not found")?);
+    ///     }
+    ///     Ok(())
+    /// }
     /// ```
     pub async fn didcomm_send(
         &mut self,

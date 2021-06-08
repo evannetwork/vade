@@ -247,6 +247,33 @@ pub trait VadePlugin: Send + Sync {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
+    /// Processes a DIDComm message as received, usually also prepares a matching response for it.
+    ///
+    /// This response **may** be sent, depending on the configuration and implementation of
+    /// underlying plugins, but it is usually also returned as response to this request.
+    ///
+    /// # Arguments
+    ///
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (usually a raw DIDComm message)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::{AsyncResult, VadePlugin, VadePluginResultValue};
+    /// // use some_crate:ExamplePlugin;
+    /// # struct ExamplePlugin { }
+    /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+    /// # impl VadePlugin for ExamplePlugin {}
+    /// async fn example() -> AsyncResult<()> {
+    ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
+    ///     let result = ep.didcomm_receive("", "").await?;
+    ///     if let VadePluginResultValue::Success(Some(value)) = result {
+    ///         println!("received DIDComm message: {}", &value);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
     async fn didcomm_receive(
         &mut self,
         options: &str,
@@ -255,6 +282,32 @@ pub trait VadePlugin: Send + Sync {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
+    /// Processes a DIDComm message and prepares it for sending.
+    ///
+    /// It **may** be sent, depending on the configuration and implementation of underlying plugins.
+    ///
+    /// # Arguments
+    ///
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (usually a raw DIDComm message)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::{AsyncResult, VadePlugin, VadePluginResultValue};
+    /// // use some_crate:ExamplePlugin;
+    /// # struct ExamplePlugin { }
+    /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+    /// # impl VadePlugin for ExamplePlugin {}
+    /// async fn example() -> AsyncResult<()> {
+    ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
+    ///     let result = ep.didcomm_send("", "").await?;
+    ///     if let VadePluginResultValue::Success(Some(value)) = result {
+    ///         println!("prepared DIDComm message: {}", &value);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
     async fn didcomm_send(
         &mut self,
         options: &str,
