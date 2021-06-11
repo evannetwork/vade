@@ -172,7 +172,8 @@ impl Vade {
         handle_results!(self, task_name, futures, did)
     }
 
-    /// Processes a DIDComm message as received, usually also prepares a matching response for it.
+    /// Processes a DIDComm message as received, this may prepare a matching response for it
+    /// if the DIDComm message can be interpreted and answered by a plugin's implementation.
     ///
     /// This response **may** be sent, depending on the configuration and implementation of
     /// underlying plugins, but it is usually also returned as response to this request.
