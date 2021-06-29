@@ -19,7 +19,7 @@ use crate::{VadePlugin, VadePluginResultValue, VadeResult};
 /// A [`Vade`] instance is your single point of contact for interacting with DIDs and VCs.
 pub struct Vade {
     /// registered plugins
-    pub plugins: Vec<Box<dyn VadePlugin + Send + Sync>>,
+    pub plugins: Vec<Box<dyn VadePlugin>>,
 }
 
 impl Vade {
@@ -243,7 +243,7 @@ impl Vade {
     ///     Ok(())
     /// }
     /// ```
-    pub fn register_plugin(&mut self, plugin: Box<dyn VadePlugin + Send + Sync>) {
+    pub fn register_plugin(&mut self, plugin: Box<dyn VadePlugin>) {
         debug!("registering new vade plugin");
         self.plugins.push(plugin);
     }
