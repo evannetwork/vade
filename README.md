@@ -43,11 +43,11 @@ More coming soon. To write your own plugins, have a look at [writing own plugins
 
 ```rust
 use vade::Vade;
-// use some_crate:ExamplePlugin;
-# use vade::VadePlugin;
-# struct ExamplePlugin { }
-# impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
-# impl VadePlugin for ExamplePlugin {}
+use vade::VadePlugin;
+
+struct ExamplePlugin { }
+impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+impl VadePlugin for ExamplePlugin {}
 
 fn example_vade_usage() {
     let ep: ExamplePlugin = ExamplePlugin::new();
