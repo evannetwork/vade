@@ -49,12 +49,12 @@ use vade::Vade;
 # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
 # impl VadePlugin for ExamplePlugin {}
 
-async fn example_vade_usage() {
+fn example_vade_usage() {
     let ep: ExamplePlugin = ExamplePlugin::new();
     let mut vade = Vade::new();
     vade.register_plugin(Box::from(ep));
 
-    match vade.did_create("did:example", "", "").await {
+    match vade.did_create("did:example", "", "") {
         Ok(results) => {
             let result = results[0].as_ref().unwrap().to_string();
             println!("created did: {}", result);

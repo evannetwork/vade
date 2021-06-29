@@ -14,8 +14,7 @@
   limitations under the License.
 */
 
-use async_trait::async_trait;
-use vade::{AsyncResult, Vade, VadePlugin, VadePluginResultValue};
+use vade::{Vade, VadePlugin, VadePluginResultValue, VadeResult};
 
 const EXAMPLE_DID_DOCUMENT_STR: &str = r###"{
     "@context": "https://www.w3.org/ns/did/v1",
@@ -36,43 +35,39 @@ impl Default for TestPlugin {
     }
 }
 
-#[async_trait]
 impl VadePlugin for TestPlugin {
     // test plugin did_create handles this request
-    async fn did_create(
+    fn did_create(
         &mut self,
         _did_method: &str,
         _options: &str,
         _payload: &str,
-    ) -> AsyncResult<VadePluginResultValue<Option<String>>> {
+    ) -> VadeResult<VadePluginResultValue<Option<String>>> {
         Ok(VadePluginResultValue::Success(Some(
             EXAMPLE_DID_DOCUMENT_STR.to_string(),
         )))
     }
 
     // test plugin did_resolve just ignores this request
-    async fn did_resolve(
-        &mut self,
-        _did: &str,
-    ) -> AsyncResult<VadePluginResultValue<Option<String>>> {
+    fn did_resolve(&mut self, _did: &str) -> VadeResult<VadePluginResultValue<Option<String>>> {
         Ok(VadePluginResultValue::Ignored)
     }
 
     // test plugin did_update returns an error
-    async fn did_update(
+    fn did_update(
         &mut self,
         _did: &str,
         _options: &str,
         _payload: &str,
-    ) -> AsyncResult<VadePluginResultValue<Option<String>>> {
+    ) -> VadeResult<VadePluginResultValue<Option<String>>> {
         Err(Box::from("yikes"))
     }
 }
 
-#[tokio::test]
-async fn vade_plugin_plugin_can_call_functions_implemented_in_plugin() {
+#[test]
+fn vade_plugin_plugin_can_call_functions_implemented_in_plugin() {
     let mut tp: TestPlugin = TestPlugin::new();
-    match tp.did_create("", "", "").await {
+    match tp.did_create("", "", "") {
         Ok(response) => match response {
             VadePluginResultValue::Success(result) => {
                 assert_eq!(result.unwrap(), EXAMPLE_DID_DOCUMENT_STR.to_string())
@@ -83,10 +78,10 @@ async fn vade_plugin_plugin_can_call_functions_implemented_in_plugin() {
     }
 }
 
-#[tokio::test]
-async fn vade_plugin_plugin_can_call_fallback_for_not_implemented() {
+#[test]
+fn vade_plugin_plugin_can_call_fallback_for_not_implemented() {
     let mut tp: TestPlugin = TestPlugin::new();
-    match tp.vc_zkp_verify_proof("", "", "").await {
+    match tp.vc_zkp_verify_proof("", "", "") {
         Ok(response) => {
             assert!(matches!(response, VadePluginResultValue::NotImplemented));
         }
@@ -94,12 +89,12 @@ async fn vade_plugin_plugin_can_call_fallback_for_not_implemented() {
     }
 }
 
-#[tokio::test]
-async fn vade_plugin_vade_can_call_functions_implemented_in_plugin() {
+#[test]
+fn vade_plugin_vade_can_call_functions_implemented_in_plugin() {
     let tp: TestPlugin = TestPlugin::new();
     let mut vade = Vade::new();
     vade.register_plugin(Box::from(tp));
-    match vade.did_create("", "", "").await {
+    match vade.did_create("", "", "") {
         Ok(results) => {
             assert_eq!(
                 results[0].as_ref().unwrap().to_string(),

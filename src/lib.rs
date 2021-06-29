@@ -57,12 +57,12 @@
 //! # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
 //! # impl VadePlugin for ExamplePlugin {}
 //!
-//! async fn example_vade_usage() -> Result<(), Box<dyn std::error::Error>> {
+//! fn example_vade_usage() -> Result<(), Box<dyn std::error::Error>> {
 //!     let ep: ExamplePlugin = ExamplePlugin::new();
 //!     let mut vade = Vade::new();
 //!     vade.register_plugin(Box::from(ep));
 //!
-//!     match vade.did_create("did:example", "", "").await {
+//!     match vade.did_create("did:example", "", "") {
 //!         Ok(results) => {
 //!             let result = results[0].as_ref().ok_or("result not found")?.to_string();
 //!             println!("created did: {}", result);
@@ -264,6 +264,6 @@ mod utils;
 mod vade;
 mod vade_plugin;
 
-pub use self::utils::{AsyncResult, ResultAsyncifier, ResultSyncifier};
+pub use self::utils::VadeResult;
 pub use self::vade::Vade;
 pub use self::vade_plugin::{VadePlugin, VadePluginResultValue};
