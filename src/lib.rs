@@ -260,10 +260,8 @@ extern crate env_logger;
 #[macro_use]
 extern crate log;
 
-mod utils;
 mod vade;
 mod vade_plugin;
 
-pub use self::utils::{AsyncResult, ResultAsyncifier, ResultSyncifier};
 pub use self::vade::Vade;
 pub use self::vade_plugin::{VadePlugin, VadePluginResultValue};
