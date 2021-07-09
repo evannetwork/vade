@@ -79,7 +79,7 @@ async fn vade_plugin_plugin_can_call_functions_implemented_in_plugin() {
             }
             _ => panic!("unexpected result"),
         },
-        Err(e) => panic!(format!("{}", e)),
+        Err(e) => panic!("{}", e),
     }
 }
 
@@ -90,7 +90,7 @@ async fn vade_plugin_plugin_can_call_fallback_for_not_implemented() {
         Ok(response) => {
             assert!(matches!(response, VadePluginResultValue::NotImplemented));
         }
-        Err(e) => panic!(format!("{}", e)),
+        Err(e) => panic!("{}", e),
     }
 }
 
@@ -108,6 +108,6 @@ async fn vade_plugin_vade_can_call_functions_implemented_in_plugin() {
 
             println!("created did: {}", results[0].as_ref().unwrap().to_string());
         }
-        Err(e) => panic!(format!("{}", e)),
+        Err(e) => panic!("{}", e),
     };
 }
