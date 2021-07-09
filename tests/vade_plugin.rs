@@ -15,7 +15,7 @@
 */
 
 use async_trait::async_trait;
-use vade::{Vade, VadePlugin, VadePluginResultValue};
+use vade::{AsyncResult, Vade, VadePlugin, VadePluginResultValue};
 
 const EXAMPLE_DID_DOCUMENT_STR: &str = r###"{
     "@context": "https://www.w3.org/ns/did/v1",
@@ -36,7 +36,7 @@ impl Default for TestPlugin {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl VadePlugin for TestPlugin {
     // test plugin did_create handles this request
     async fn did_create(
@@ -44,7 +44,7 @@ impl VadePlugin for TestPlugin {
         _did_method: &str,
         _options: &str,
         _payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<VadePluginResultValue<Option<String>>> {
         Ok(VadePluginResultValue::Success(Some(
             EXAMPLE_DID_DOCUMENT_STR.to_string(),
         )))
@@ -54,7 +54,7 @@ impl VadePlugin for TestPlugin {
     async fn did_resolve(
         &mut self,
         _did: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<VadePluginResultValue<Option<String>>> {
         Ok(VadePluginResultValue::Ignored)
     }
 
@@ -64,7 +64,7 @@ impl VadePlugin for TestPlugin {
         _did: &str,
         _options: &str,
         _payload: &str,
-    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<VadePluginResultValue<Option<String>>> {
         Err(Box::from("yikes"))
     }
 }

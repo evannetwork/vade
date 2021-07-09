@@ -4,6 +4,7 @@
 
 ### Features
 
+- update interfaces of `Vade` and `VadePlugin` functions to return `Result<T, <Box dyn std::io::Error + Send + Sync>>` results to allow them being used in multi-thread scenarios
 - add functions for handling DIDComm messages to `Vade` and `VadePlugin`:
   - `didcomm_receive`
   - `didcomm_send`

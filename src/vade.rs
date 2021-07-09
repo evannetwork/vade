@@ -14,7 +14,7 @@
   limitations under the License.
 */
 
-use crate::{VadePlugin, VadePluginResultValue};
+use crate::{AsyncResult, VadePlugin, VadePluginResultValue};
 use futures::future::try_join_all;
 
 /// Calls `try_join_all` on given functions. Logs messages depending on given task name and
@@ -51,7 +51,7 @@ macro_rules! handle_results {
 /// A [`Vade`] instance is your single point of contact for interacting with DIDs and VCs.
 pub struct Vade {
     /// registered plugins
-    pub plugins: Vec<Box<dyn VadePlugin>>,
+    pub plugins: Vec<Box<dyn VadePlugin + Send + Sync>>,
 }
 
 impl Vade {
@@ -76,8 +76,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -93,7 +93,7 @@ impl Vade {
         did_method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "did_create";
         self.log_fun_enter(&task_name, &did_method);
         let mut futures = Vec::new();
@@ -112,8 +112,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -124,10 +124,7 @@ impl Vade {
     ///     Ok(())
     /// }
     /// ```
-    pub async fn did_resolve(
-        &mut self,
-        did: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    pub async fn did_resolve(&mut self, did: &str) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "did_resolve";
         self.log_fun_enter(&task_name, &did);
         let mut futures = Vec::new();
@@ -148,8 +145,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -165,7 +162,7 @@ impl Vade {
         did: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "did_update";
         self.log_fun_enter(&task_name, &did);
         let mut futures = Vec::new();
@@ -188,8 +185,8 @@ impl Vade {
     ///
     /// # Example
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -204,7 +201,7 @@ impl Vade {
         &mut self,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "didcomm_receive";
         self.log_fun_enter(&task_name, &task_name);
         let mut futures = Vec::new();
@@ -226,8 +223,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -242,7 +239,7 @@ impl Vade {
         &mut self,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "didcomm_send";
         self.log_fun_enter(&task_name, &task_name);
         let mut futures = Vec::new();
@@ -261,13 +258,13 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
+    /// use vade::{AsyncResult, Vade};
     /// // use some_crate::ExamplePlugin;
     /// # use vade::VadePlugin;
     /// # struct ExamplePlugin { }
     /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
     /// # impl VadePlugin for ExamplePlugin {}
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     let mut example_plugin = ExamplePlugin::new();
     ///     vade.register_plugin(Box::from(example_plugin));
@@ -278,7 +275,7 @@ impl Vade {
     ///     Ok(())
     /// }
     /// ```
-    pub fn register_plugin(&mut self, plugin: Box<dyn VadePlugin>) {
+    pub fn register_plugin(&mut self, plugin: Box<dyn VadePlugin + Send + Sync>) {
         debug!("registering new vade plugin");
         self.plugins.push(plugin);
     }
@@ -296,8 +293,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -314,7 +311,7 @@ impl Vade {
         function: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "run_custom_function";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -337,8 +334,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -354,7 +351,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_create_credential_definition";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -375,8 +372,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -392,7 +389,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_create_credential_offer";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -414,8 +411,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -431,7 +428,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_create_credential_proposal";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -453,8 +450,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -470,7 +467,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_create_credential_schema";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -493,8 +490,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -510,7 +507,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_create_revocation_registry_definition";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -534,8 +531,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -551,7 +548,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_update_revocation_registry";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -573,8 +570,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -590,7 +587,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_issue_credential";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -611,8 +608,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -628,7 +625,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_finish_credential";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -650,8 +647,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -667,7 +664,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_present_proof";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -688,8 +685,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -705,7 +702,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_request_credential";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -726,8 +723,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -743,7 +740,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_request_proof";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -765,8 +762,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -782,7 +779,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_revoke_credential";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
@@ -803,8 +800,8 @@ impl Vade {
     /// # Example
     ///
     /// ```
-    /// use vade::Vade;
-    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use vade::{AsyncResult, Vade};
+    /// async fn example() -> AsyncResult<()> {
     ///     let mut vade = Vade::new();
     ///     // // register example plugin e.g. with
     ///     // vade.register_plugin(example_plugin);
@@ -820,7 +817,7 @@ impl Vade {
         method: &str,
         options: &str,
         payload: &str,
-    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+    ) -> AsyncResult<Vec<Option<String>>> {
         let task_name = "vc_zkp_verify_proof";
         self.log_fun_enter(&task_name, &method);
         let mut futures = Vec::new();
