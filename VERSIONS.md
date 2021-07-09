@@ -4,6 +4,10 @@
 
 ### Features
 
+- add functions for handling DIDComm messages to `Vade` and `VadePlugin`:
+  - `didcomm_receive`
+  - `didcomm_send`
+
 ### Fixes
 
 ### Deprecations
