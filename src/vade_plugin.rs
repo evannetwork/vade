@@ -246,6 +246,76 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
+    /// Processes a DIDComm message as received, usually also prepares a matching response for it.
+    ///
+    /// This response **may** be sent, depending on the configuration and implementation of
+    /// underlying plugins, but it is usually also returned as response to this request.
+    ///
+    /// # Arguments
+    ///
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (usually a raw DIDComm message)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::{VadePlugin, VadePluginResultValue};
+    /// // use some_crate:ExamplePlugin;
+    /// # struct ExamplePlugin { }
+    /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+    /// # impl VadePlugin for ExamplePlugin {}
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
+    ///     let result = ep.didcomm_receive("", "").await?;
+    ///     if let VadePluginResultValue::Success(Some(value)) = result {
+    ///         println!("received DIDComm message: {}", &value);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    async fn didcomm_receive(
+        &mut self,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    /// Processes a DIDComm message as received, this may prepare a matching response for it
+    /// if the DIDComm message can be interpreted and answered by a plugin's implementation.
+    ///
+    /// It **may** be sent, depending on the configuration and implementation of underlying plugins.
+    ///
+    /// # Arguments
+    ///
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (usually a raw DIDComm message)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::{VadePlugin, VadePluginResultValue};
+    /// // use some_crate:ExamplePlugin;
+    /// # struct ExamplePlugin { }
+    /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+    /// # impl VadePlugin for ExamplePlugin {}
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
+    ///     let result = ep.didcomm_send("", "").await?;
+    ///     if let VadePluginResultValue::Success(Some(value)) = result {
+    ///         println!("prepared DIDComm message: {}", &value);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    async fn didcomm_send(
+        &mut self,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
     /// Runs a custom function, this allows to use `Vade`s API for custom calls, that do not belong
     /// to `Vade`s core functionality but may be required for a projects use cases.
     ///
@@ -520,6 +590,40 @@ pub trait VadePlugin {
     /// }
     /// ```
     async fn vc_zkp_issue_credential(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
+    /// Finishes a credential, e.g. by incorporating the prover's master secret into the credential signature after issuance.
+    ///
+    /// # Arguments
+    ///
+    /// * `method` - method to update a finish credential for (e.g. "did:example")
+    /// * `options` - JSON string with additional information supporting the request (e.g. authentication data)
+    /// * `payload` - JSON string with information for the request (e.g. actual data to write)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::{VadePlugin, VadePluginResultValue};
+    /// // use some_crate:ExamplePlugin;
+    /// # struct ExamplePlugin { }
+    /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+    /// # impl VadePlugin for ExamplePlugin {}
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
+    ///     let result = ep.vc_zkp_finish_credential("did:example", "", "").await?;
+    ///     if let VadePluginResultValue::Success(Some(value)) = result {
+    ///         println!("finished credential: {}", &value);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    async fn vc_zkp_finish_credential(
         &mut self,
         method: &str,
         options: &str,
