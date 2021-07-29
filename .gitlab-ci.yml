@@ -1,0 +1,10 @@
+image: rust:latest
+
+stages:
+  - test_unit
+
+test_unit:
+  stage: test_unit
+  script:
+    - cargo build --release --verbose
+    - cargo test --release --verbose
