@@ -1,3 +1,5 @@
+image: rust:latest
+
 stages:
   - build
   - test_unit
@@ -5,11 +7,19 @@ stages:
 build:
   stage: build
   script:
+    - apt-get update
+    - apt-get install -y clang
     - cargo build --release --verbose
+  artifacts:
+    paths:
+      - ./target
+    expire_in: 1 hour
 
 test_unit:
   stage: test_unit
   script:
+    - apt-get update
+    - apt-get install -y clang
     - cargo install cargo2junit
     - cargo test --release --verbose -- -Z unstable-options --format json --report-time | cargo2junit > results.xml
     - cat results.xml
