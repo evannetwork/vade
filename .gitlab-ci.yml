@@ -1,10 +1,26 @@
-image: rust:latest
-
 stages:
+  - build
   - test_unit
+
+build:
+  stage: build
+  script:
+    - apt-get update
+    - apt-get install -y clang
+    - cargo build --release --verbose
+  artifacts:
+    paths:
+      - ./target
+    expire_in: 1 hour
 
 test_unit:
   stage: test_unit
   script:
-    - cargo build --release --verbose
-    - cargo test --release --verbose
+    - apt-get update
+    - apt-get install -y clang
+    - cargo install cargo2junit
+    - cargo test --release --verbose -- -Z unstable-options --format json --report-time | cargo2junit > results.xml
+    - cat results.xml
+    - 'export AUTHTOKEN=$(curl -X POST -H "Content-Type: application/json" -d "{ \"client_id\": \"${id_client}\", \"client_secret\": \"${id_secret}\" }" "https://xray.cloud.xpand-it.com/api/v2/authenticate" | sed -e "s/\"//g")'
+    - 'curl -X POST -H "Content-Type: text/xml" -H "Authorization: Bearer ${AUTHTOKEN}" -d "@results.xml" "https://xray.cloud.xpand-it.com/api/v2/import/execution/junit?projectKey=DID&testPlanKey=DID-74&testExecKey=DID-98"'
+
