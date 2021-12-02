@@ -41,7 +41,7 @@ upload-xray-results:
   tags:
     - regression-tests
   rules:
-    - if: '$CI_COMMIT_REF_NAME != "develop"'
+    - if: '$CI_COMMIT_REF_NAME == "develop"'
       when: always
     - when: never
   script:
