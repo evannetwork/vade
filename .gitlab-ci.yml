@@ -46,7 +46,7 @@ upload-xray-results:
     - when: never
   script:
     - 'export AUTHTOKEN=$(curl -X POST -H "Content-Type: application/json" -d "{ \"client_id\": \"${id_client}\", \"client_secret\": \"${id_secret}\" }" "https://xray.cloud.xpand-it.com/api/v2/authenticate" | sed -e "s/\"//g")'
-    - 'curl -X POST -H "Content-Type: text/xml" -H "Authorization: Bearer ${AUTHTOKEN}" -d @"unit-report/junit.xml" "https://xray.cloud.xpand-it.com/api/v2/import/execution/junit?projectKey=DID&testPlanKey=${test_plan}&testExecKey=${unit_test_execution}"'
+    - 'curl -X POST -H "Content-Type: text/xml" -H "Authorization: Bearer ${AUTHTOKEN}" -d @"unit-report/junit.xml" "https://xray.cloud.xpand-it.com/api/v2/import/execution/junit?projectKey=DID&testPlanKey=${test_plan}&testExecKey=${test_execution}"'
   cache:
     key: unit-report
     paths:
