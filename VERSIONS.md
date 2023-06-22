@@ -4,6 +4,8 @@
 
 ### Features
 
+- add `vc_zkp_propose_proof` to `Vade` and `VadePlugin` to allow creating proof proposal via plugins
+
 ### Fixes
 
 ### Deprecations

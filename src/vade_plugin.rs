@@ -667,6 +667,40 @@ pub trait VadePlugin {
         Ok(VadePluginResultValue::NotImplemented)
     }
 
+    /// Proposes a zero-knowledge proof for one or more credentials issued under one or more specific schemas.
+    ///
+    /// # Arguments
+    ///
+    /// * `method` - method to propose a proof for (e.g. "did:example")
+    /// * `options` - JSON string with additional information supporting the proposal (e.g. authentication data)
+    /// * `payload` - JSON string with information for the proposal (e.g. actual data to write)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::{VadePlugin, VadePluginResultValue};
+    /// // use some_crate:ExamplePlugin;
+    /// # struct ExamplePlugin { }
+    /// # impl ExamplePlugin { pub fn new() -> Self { ExamplePlugin {} } }
+    /// # impl VadePlugin for ExamplePlugin {}
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let mut ep: ExamplePlugin = ExamplePlugin::new();
+    ///     let result = ep.vc_zkp_propose_proof("did:example", "", "").await?;
+    ///     if let VadePluginResultValue::Success(Some(value)) = result {
+    ///         println!("created proof proposal: {}", &value);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    async fn vc_zkp_propose_proof(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<VadePluginResultValue<Option<String>>, Box<dyn std::error::Error>> {
+        Ok(VadePluginResultValue::NotImplemented)
+    }
+
     /// Requests a credential. This message is the response to a credential offering.
     ///
     /// # Arguments

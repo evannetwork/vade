@@ -677,6 +677,44 @@ impl Vade {
         handle_results!(self, task_name, futures, method)
     }
 
+    /// Proposes a zero-knowledge proof for one or more credentials issued under one or more specific schemas.
+    ///
+    /// # Arguments
+    ///
+    /// * `method` - method to propose a proof for (e.g. "did:example")
+    /// * `options` - JSON string with additional information supporting the proposal (e.g. authentication data)
+    /// * `payload` - JSON string with information for the proposal (e.g. actual data to write)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use vade::Vade;
+    /// async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let mut vade = Vade::new();
+    ///     // // register example plugin e.g. with
+    ///     // vade.register_plugin(example_plugin);
+    ///     let results = vade.vc_zkp_propose_proof("did:example", "", "").await?;
+    ///     if !results.is_empty() {
+    ///         println!("created proof proposal: {}", results[0].as_ref().ok_or("result not found")?);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    pub async fn vc_zkp_propose_proof(
+        &mut self,
+        method: &str,
+        options: &str,
+        payload: &str,
+    ) -> Result<Vec<Option<String>>, Box<dyn std::error::Error>> {
+        let task_name = "vc_zkp_propose_proof";
+        self.log_fun_enter(&task_name, &method);
+        let mut futures = Vec::new();
+        for plugin in self.plugins.iter_mut() {
+            futures.push(plugin.vc_zkp_propose_proof(method, options, payload));
+        }
+        handle_results!(self, task_name, futures, method)
+    }
+
     /// Requests a credential. This message is the response to a credential offering.
     ///
     /// # Arguments
