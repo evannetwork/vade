@@ -4,11 +4,15 @@
 
 ### Features
 
-- add `vc_zkp_propose_proof` to `Vade` and `VadePlugin` to allow creating proof proposal via plugins
-
 ### Fixes
 
 ### Deprecations
+
+## Version 0.1.1
+
+### Features
+
+- add `vc_zkp_propose_proof` to `Vade` and `VadePlugin` to allow creating proof proposal via plugins
 
 ## Version 0.1.0
 
